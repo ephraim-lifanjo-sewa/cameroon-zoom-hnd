@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+/* =====================================================
+   Tailwind v4 THEME MAPPING
+   ===================================================== */
+@theme {
+  /* colors */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* fonts */
+  --font-body: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+
+  --font-heading: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+
+  /* radius */
+  --radius: 8px;
+}
+
+/* =====================================================
+   BASE COLORS
+   ===================================================== */
+@layer base {
+  :root {
+    --background: 0 0% 100%; /* white */
+    --foreground: 210 2% 18%; /* dark gray */
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 2% 18%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 2% 18%;
+
+    --primary: 0 81% 46%; /* #D71616 */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 20%; /* charcoal */
+    --secondary-foreground: 0 0% 100%;
+
+    /* FIXED: removed pink */
+    --muted: 0 0% 96%; /* light gray */
+    --muted-foreground: 210 2% 40%; /* neutral gray */
+
+    --accent: 0 94% 63%; /* accent red */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 81% 46%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 92%; /* soft border gray */
+    --input: 0 0% 92%;
+    --ring: 0 81% 46%;
+
+    --radius: 8px;
+  }
+}
+
+/* =====================================================
+   BASE STYLES
+   ===================================================== */
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    @apply bg-white text-foreground font-body overflow-x-hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-secondary font-bold;
+  }
+}
+
+/* =====================================================
+   SCROLLBAR UTILITIES
+   ===================================================== */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/20 rounded-full;
+}

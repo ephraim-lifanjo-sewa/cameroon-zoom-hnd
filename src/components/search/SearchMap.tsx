@@ -1,0 +1,258 @@
+
+"use client";
+
+import { useEffect, useState, useMemo, memo } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-defaulticon-compatibility';
+import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
+import { MapContainer, TileLayer, Marker, useMap, Popup } from 'react-leaflet';
+import { Enterprise } from '@/app/lib/types';
+import { renderToString } from 'react-dom/server';
+import { Star, ChevronRight, MapPin, Layers, Map as MapIcon, X } from 'lucide-react';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
+
+/**
+ * CARTOON PRO MARKER
+ * Optimized with stable stroke and shadow definitions.
+ */
+const createCustomPin = (isHighlighted: boolean = false) => {
+  const size = isHighlighted ? 44 : 34;
+  const color = '#D71616'; 
+  
+  const html = renderToString(
+    <div style={{
+      width: `${size}px`,
+      height: `${size}px`,
+      position: 'relative',
+      filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
+      transform: isHighlighted ? 'scale(1.1) translateY(-4px)' : 'scale(1)',
+      transition: 'all 0.2s ease-out',
+      cursor: 'pointer'
+    }}>
+      <svg viewBox="0 0 24 24" fill={color} stroke="#000000" strokeWidth="2.5" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+        <circle cx="12" cy="9" r="3.5" fill="white" stroke="#000000" strokeWidth="1.5" />
+      </svg>
+    </div>
+  );
+
+  return L.divIcon({
+    className: 'enterprise-marker',
+    html: html,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size],
+    popupAnchor: [0, -size]
+  });
+};
+
+/**
+ * AUTO-BOUNDS & POSITION SYNC
+ * Optimized to prevent excessive map movements.
+ */
+function MapHandler({ 
+  businesses, 
+  highlightedId
+}: { 
+  businesses: Enterprise[], 
+  highlightedId?: string | null
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (highlightedId) {
+      const active = businesses.find(b => b.id === highlightedId);
+      if (active?.latitude && active?.longitude) {
+        map.setView([active.latitude, active.longitude], 17, { animate: true, duration: 0.4 });
+        return;
+      }
+    }
+
+    if (businesses.length > 0) {
+      const points = businesses
+        .map(b => [b.latitude, b.longitude] as [number, number])
+        .filter(p => !isNaN(p[0]) && !isNaN(p[1]) && p[0] !== 0);
+
+      if (points.length > 0) {
+        const bounds = L.latLngBounds(points);
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15, animate: true, duration: 0.8 });
+      }
+    }
+  }, [businesses, highlightedId, map]);
+
+  return null;
+}
+
+interface SearchMapProps {
+  businesses: Enterprise[];
+  onMarkerClick?: (business: Enterprise) => void;
+  highlightedId?: string | null;
+  isMobileOnly?: boolean;
+  onCloseMobile?: () => void;
+}
+
+/**
+ * OPTIMIZED MARKER COMPONENT
+ * Prevents re-rendering markers if data doesn't change.
+ */
+const EnterpriseMarker = memo(({ 
+  enterprise, 
+  isHighlighted, 
+  onClick 
+}: { 
+  enterprise: Enterprise, 
+  isHighlighted: boolean, 
+  onClick: () => void 
+}) => {
+  const icon = useMemo(() => createCustomPin(isHighlighted), [isHighlighted]);
+
+  if (!enterprise.latitude || !enterprise.longitude) return null;
+
+  return (
+    <Marker 
+      position={[enterprise.latitude, enterprise.longitude]}
+      icon={icon}
+      eventHandlers={{ click: onClick }}
+    >
+      <Popup closeButton={false} className="minimal-popup" offset={[0, -8]}>
+        <div className="font-body bg-white p-4 w-60">
+          <div className="space-y-2">
+            <h4 className="font-black text-black uppercase text-[13px] truncate leading-tight tracking-tight">
+              {enterprise.businessName || enterprise.name}
+            </h4>
+            <div className="flex items-center gap-1">
+              <div className="flex">
+                {[1,2,3,4,5].map(i => (
+                  <Star key={i} className={cn("w-3 h-3", i <= Math.round(enterprise.averageRating || 0) ? 'fill-[#FF643D] text-[#FF643D]' : 'text-gray-200')} />
+                ))}
+              </div>
+              <span className="text-[10px] font-black opacity-60 uppercase tracking-widest ml-1">
+                ({enterprise.totalReviews || 0})
+              </span>
+            </div>
+            <div className="pt-3 border-t-2 border-black flex items-center justify-between">
+              <span className="text-[9px] font-black uppercase opacity-60 flex items-center gap-1">
+                <MapPin className="w-3 h-3 text-primary" /> {enterprise.city}
+              </span>
+              <Link href={`/business/${enterprise.id}`} className="text-primary font-black uppercase text-[10px] hover:underline flex items-center gap-1 group">
+                Visit <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </Popup>
+    </Marker>
+  );
+});
+
+EnterpriseMarker.displayName = 'EnterpriseMarker';
+
+export default function SearchMap({ 
+  businesses, 
+  onMarkerClick, 
+  highlightedId, 
+  isMobileOnly,
+  onCloseMobile
+}: SearchMapProps) {
+  const [isMounted, setIsMounted] = useState(false);
+  const [mapType, setMapType] = useState<'standard' | 'satellite'>('standard');
+
+  useEffect(() => { setIsMounted(true); }, []);
+
+  const tileUrl = useMemo(() => 
+    mapType === 'standard' 
+      ? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+  , [mapType]);
+
+  if (!isMounted) return <div className="w-full h-full bg-[#F5F5F5] animate-pulse" />;
+
+  return (
+    <div className="relative w-full h-full flex flex-col overflow-hidden">
+      <style jsx global>{`
+        .minimal-popup .leaflet-popup-content-wrapper {
+          background: white;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+          padding: 0;
+          border-radius: 12px;
+          border: 3px solid #000000;
+          overflow: hidden;
+        }
+        .minimal-popup .leaflet-popup-content {
+          margin: 0;
+          width: auto !important;
+        }
+        .minimal-popup .leaflet-popup-tip-container {
+          display: none;
+        }
+        .enterprise-marker {
+          outline: none;
+        }
+      `}</style>
+
+      {/* MOBILE MAP HEADER */}
+      {isMobileOnly && (
+        <header className="h-[64px] bg-white border-b-2 border-black flex items-center justify-between px-6 shrink-0 z-[1001]">
+          <span className="font-black text-black uppercase tracking-widest text-sm">Map</span>
+          <button 
+            onClick={onCloseMobile}
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-muted/10 hover:bg-black hover:text-white transition-all active:scale-90"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </header>
+      )}
+
+      <div className="flex-grow relative w-full overflow-hidden">
+        <MapContainer 
+          center={[4.0511, 9.7679]} 
+          zoom={13} 
+          className="w-full h-full z-0"
+          zoomControl={false}
+          preferCanvas={true}
+        >
+          <TileLayer url={tileUrl} attribution='&copy; OpenStreetMap' />
+          <MapHandler 
+            businesses={businesses} 
+            highlightedId={highlightedId} 
+          />
+
+          {businesses.map((enterprise) => (
+            <EnterpriseMarker 
+              key={enterprise.id}
+              enterprise={enterprise}
+              isHighlighted={highlightedId === enterprise.id}
+              onClick={() => onMarkerClick?.(enterprise)}
+            />
+          ))}
+        </MapContainer>
+
+        {/* PRO MAP CONTROLS */}
+        <div className="absolute bottom-6 right-6 z-[400] flex flex-col gap-3 items-end">
+          <div className="flex flex-col bg-white border-[3px] border-black rounded-xl p-1 shadow-xl">
+            <button 
+              onClick={() => setMapType('standard')} 
+              className={cn(
+                "p-3 rounded-lg transition-all", 
+                mapType === 'standard' ? "bg-black text-white shadow-md" : "text-black hover:bg-muted"
+              )}
+            >
+              <MapIcon className="w-5 h-5" />
+            </button>
+            <div className="h-1" />
+            <button 
+              onClick={() => setMapType('satellite')} 
+              className={cn(
+                "p-3 rounded-lg transition-all", 
+                mapType === 'satellite' ? "bg-black text-white shadow-md" : "text-black hover:bg-muted"
+              )}
+            >
+              <Layers className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

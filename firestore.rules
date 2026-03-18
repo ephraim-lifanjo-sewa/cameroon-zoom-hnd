@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * CAMEROON ZOOM SECURITY RULES
+     * Simplified for professional directory governance.
+     */
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (request.auth.token.email == 'admin@gmail.com' || 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
+    }
+
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin(); 
+    }
+
+    match /users/{userId} {
+      allow read, list: if isSignedIn(); // Allow listing for admin checks and basic profile viewing
+      allow create: if true;
+      allow update: if isOwner(userId) || isAdmin();
+    }
+
+    match /businesses/{businessId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (resource.data.reviewerId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    match /photos/{photoId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+    
+    match /verificationRequests/{requestId} {
+      allow read, list: if isAdmin();
+      allow create: if isSignedIn();
+      allow delete: if isAdmin();
+    }
+  }
+}

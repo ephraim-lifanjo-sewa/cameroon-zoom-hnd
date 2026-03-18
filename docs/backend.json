@@ -1,0 +1,51 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "fullName": { "type": "string" },
+        "profilePhoto": { "type": "string" },
+        "bio": { "type": "string" },
+        "city": { "type": "string" },
+        "joinDate": { "type": "string", "format": "date-time" },
+        "reviewCount": { "type": "number" },
+        "averageRatingGiven": { "type": "number" },
+        "isBusinessOwner": { "type": "boolean" },
+        "savedBusinessIds": { "type": "array", "items": { "type": "string" } },
+        "nickname": { "type": "string" },
+        "tagline": { "type": "string" },
+        "hometown": { "type": "string" }
+      }
+    },
+    "Business": {
+      "title": "Business",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "businessName": { "type": "string" },
+        "tagline": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "address": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "email": { "type": "string" },
+        "website": { "type": "string" },
+        "hours": { "type": "string" },
+        "priceRange": { "type": "string" },
+        "coverPhoto": { "type": "string" },
+        "logo": { "type": "string" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "averageRating": { "type": "number" },
+        "totalReviews": { "type": "number" },
+        "ownerId": { "type": "string" },
+        "isVerified": { "type": "boolean" },
+        "isActive": { "type": "boolean" }
+      }
+    }
+  }
+}

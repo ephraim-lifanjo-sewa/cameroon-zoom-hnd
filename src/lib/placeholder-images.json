@@ -1,0 +1,64 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero-reunification",
+      "description": "Cameroon Monument - Institutional Landmark",
+      "imageUrl": "/agro.jpg",
+      "imageHint": "Modern architecture"
+    },
+    {
+      "id": "hero-yaounde",
+      "description": "Yaoundé Administrative Hub - Urban View",
+      "imageUrl": "poulete.jpg",
+      "imageHint": "City buildings"
+    },
+    {
+      "id": "hero-douala",
+      "description": "Douala Economic Energy - Business District",
+      "imageUrl": "/douala.jpg",
+      "imageHint": "Modern office"
+    },
+    {
+      "id": "hero-ngaoundere",
+      "description": "Ngaoundéré Plateau - Northern Landscape",
+      "imageUrl": "/ngaoundere.jpg",
+      "imageHint": "African landscape"
+    },
+    {
+      "id": "town-dla",
+      "description": "Douala Hub Thumbnail",
+      "imageUrl": "/douala.jpg",
+      "imageHint": "Busy city"
+    },
+    {
+      "id": "town-yde",
+      "description": "Yaoundé Hub Thumbnail",
+      "imageUrl": "/yaounde.jpg",
+      "imageHint": "City night"
+    },
+    {
+      "id": "town-ngr",
+      "description": "Ngaoundéré Hub Thumbnail",
+      "imageUrl": "/ngaoundere.jpg",
+      "imageHint": "African nature"
+    },
+    {
+      "id": "biz-edu",
+      "description": "Institutional Education Center",
+      "imageUrl": "/download.jpg",
+      "imageHint": "Campus building"
+    },
+    {
+      "id": "biz-telecom",
+      "description": "Telecom Infrastructure",
+      "imageUrl": "https://images.unsplash.com/photo-1767884162181-68267b807b40?q=80&w=1080",
+      "imageHint": "Tech workspace"
+    },
+    {
+      "id": "biz-finance",
+      "description": "Banking & Finance Institution",
+      "imageUrl": "https://images.unsplash.com/photo-1696441315090-fe40d27275f2?q=80&w=1080",
+      "imageHint": "Bank building"
+    }
+  ]
+}
