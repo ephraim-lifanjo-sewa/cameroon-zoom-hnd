@@ -1,5 +1,6 @@
 "use client";
 
+
 import { Navbar } from '@/components/layout/Navbar';
 import { CategoryScroll } from '@/components/business/CategoryScroll';
 import { TownScroll } from '@/components/business/TownScroll';
@@ -15,6 +16,7 @@ import { Enterprise } from './lib/types';
 import { EnterpriseCard } from '@/components/enterprise/EnterpriseCard';
 import SearchInput from '@/components/search/SearchInput';
 
+export const dynamic = "force-static";
 export default function Home() {
   const { t } = useLanguage();
   const db = useFirestore();
