@@ -2,58 +2,28 @@
 {
   "placeholderImages": [
     {
+      "id": "default-building",
+      "description": "Institutional default building silhouette",
+      "imageUrl": "https://picsum.photos/seed/inst-build/400/400",
+      "imageHint": "Institutional building"
+    },
+    {
       "id": "hero-reunification",
-      "description": "Cameroon Reunification Monument - Yaoundé Landmark",
-      "imageUrl": "/industry.jpg",
-      "imageHint": "Cameroon architecture"
+      "description": "Cameroon Monument - Institutional Landmark",
+      "imageUrl": "https://images.unsplash.com/photo-1659947234448-bf0ab56ce0c5?q=80&w=1200",
+      "imageHint": "Modern architecture"
     },
     {
-      "id": "hero-yaounde",
-      "description": "Yaoundé Capital District - Administrative Heart of Cameroon",
-      "imageUrl": "/yaounde.jpg",
-      "imageHint": "Yaounde city"
+      "id": "hero-douala-port",
+      "description": "Port of Douala - Economic Hub",
+      "imageUrl": "https://images.unsplash.com/photo-1516939884455-1445c8652f83?q=80&w=1200",
+      "imageHint": "Port infrastructure"
     },
     {
-      "id": "hero-douala",
-      "description": "Douala Economic Hub - Akwa Business Energy",
-      "imageUrl": "/douala.jpg",
-      "imageHint": "Douala business"
-    },
-    {
-      "id": "town-dla",
-      "description": "Douala Hub Thumbnail",
-      "imageUrl": "",
-      "imageHint": "African city"
-    },
-    {
-      "id": "town-yde",
-      "description": "Yaoundé Hub Thumbnail",
-      "imageUrl": "/yaounde.jpg",
-      "imageHint": "African monument"
-    },
-    {
-      "id": "town-ngr",
-      "description": "Ngaoundéré Hub Thumbnail",
-      "imageUrl": "/ngaoundere.jpg",
-      "imageHint": "Ngaoundere nature"
-    },
-    {
-      "id": "biz-edu",
-      "description": "Cameroon Higher Education Building",
-      "imageUrl": "https://images.unsplash.com/photo-1638636214032-581196ffd400?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxBZnJpY2FuJTIwdW5pdmVyc2l0eXxlbnwwfHx8fDE3NzAwMjcwNjJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "African campus"
-    },
-    {
-      "id": "biz-telecom",
-      "description": "Cameroon Telecom Infrastructure",
-      "imageUrl": "https://images.unsplash.com/photo-1767884162181-68267b807b40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxUZWxlY29tJTIwdGVjaG5vbG9neXxlbnwwfHx8fDE3NzAwMjcwNjJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "Telecom infrastructure"
-    },
-    {
-      "id": "biz-finance",
-      "description": "Cameroon Banking Institution",
-      "imageUrl": "/agro.jpg",
-      "imageHint": "African finance"
+      "id": "hero-yaounde-admin",
+      "description": "Yaoundé Administrative Center",
+      "imageUrl": "https://images.unsplash.com/photo-1636385918427-7aa474ffa8ae?q=80&w=1200",
+      "imageHint": "City buildings"
     }
   ]
 }

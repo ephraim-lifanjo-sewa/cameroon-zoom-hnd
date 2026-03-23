@@ -14,8 +14,9 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 /**
- * CARTOON PRO MARKER
- * Optimized with stable stroke and shadow definitions.
+ * INSTITUTIONAL SINGLE-TYPE PIN
+ * Standardized red marker for all directory entries.
+ * Interaction is handled by scale rather than color change.
  */
 const createCustomPin = (isHighlighted: boolean = false) => {
   const size = isHighlighted ? 44 : 34;
@@ -26,14 +27,14 @@ const createCustomPin = (isHighlighted: boolean = false) => {
       width: `${size}px`,
       height: `${size}px`,
       position: 'relative',
-      filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
-      transform: isHighlighted ? 'scale(1.1) translateY(-4px)' : 'scale(1)',
-      transition: 'all 0.2s ease-out',
+      filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))',
+      transform: isHighlighted ? 'translateY(-4px)' : 'scale(1)',
+      transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
       cursor: 'pointer'
     }}>
-      <svg viewBox="0 0 24 24" fill={color} stroke="#000000" strokeWidth="2.5" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 24 24" fill={color} stroke="#FFFFFF" strokeWidth="2" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-        <circle cx="12" cy="9" r="3.5" fill="white" stroke="#000000" strokeWidth="1.5" />
+        <circle cx="12" cy="9" r="3.5" fill="white" />
       </svg>
     </div>
   );
@@ -47,10 +48,6 @@ const createCustomPin = (isHighlighted: boolean = false) => {
   });
 };
 
-/**
- * AUTO-BOUNDS & POSITION SYNC
- * Optimized to prevent excessive map movements.
- */
 function MapHandler({ 
   businesses, 
   highlightedId
@@ -64,7 +61,7 @@ function MapHandler({
     if (highlightedId) {
       const active = businesses.find(b => b.id === highlightedId);
       if (active?.latitude && active?.longitude) {
-        map.setView([active.latitude, active.longitude], 17, { animate: true, duration: 0.4 });
+        map.flyTo([active.latitude, active.longitude], 16, { duration: 0.6 });
         return;
       }
     }
@@ -76,7 +73,7 @@ function MapHandler({
 
       if (points.length > 0) {
         const bounds = L.latLngBounds(points);
-        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15, animate: true, duration: 0.8 });
+        map.fitBounds(bounds, { padding: [60, 60], maxZoom: 15, animate: true, duration: 1 });
       }
     }
   }, [businesses, highlightedId, map]);
@@ -92,10 +89,6 @@ interface SearchMapProps {
   onCloseMobile?: () => void;
 }
 
-/**
- * OPTIMIZED MARKER COMPONENT
- * Prevents re-rendering markers if data doesn't change.
- */
 const EnterpriseMarker = memo(({ 
   enterprise, 
   isHighlighted, 
@@ -114,6 +107,7 @@ const EnterpriseMarker = memo(({
       position={[enterprise.latitude, enterprise.longitude]}
       icon={icon}
       eventHandlers={{ click: onClick }}
+      zIndexOffset={isHighlighted ? 1000 : 0}
     >
       <Popup closeButton={false} className="minimal-popup" offset={[0, -8]}>
         <div className="font-body bg-white p-4 w-60">
@@ -173,7 +167,7 @@ export default function SearchMap({
       <style jsx global>{`
         .minimal-popup .leaflet-popup-content-wrapper {
           background: white;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+          box-shadow: 0 10px 40px rgba(0,0,0,0.5);
           padding: 0;
           border-radius: 12px;
           border: 3px solid #000000;
@@ -191,18 +185,6 @@ export default function SearchMap({
         }
       `}</style>
 
-      {/* MOBILE MAP HEADER */}
-      {isMobileOnly && (
-        <header className="h-[64px] bg-white border-b-2 border-black flex items-center justify-between px-6 shrink-0 z-[1001]">
-          <span className="font-black text-black uppercase tracking-widest text-sm">Map</span>
-          <button 
-            onClick={onCloseMobile}
-            className="w-10 h-10 flex items-center justify-center rounded-xl bg-muted/10 hover:bg-black hover:text-white transition-all active:scale-90"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </header>
-      )}
 
       <div className="flex-grow relative w-full overflow-hidden">
         <MapContainer 
@@ -228,7 +210,6 @@ export default function SearchMap({
           ))}
         </MapContainer>
 
-        {/* PRO MAP CONTROLS */}
         <div className="absolute bottom-6 right-6 z-[400] flex flex-col gap-3 items-end">
           <div className="flex flex-col bg-white border-[3px] border-black rounded-xl p-1 shadow-xl">
             <button 

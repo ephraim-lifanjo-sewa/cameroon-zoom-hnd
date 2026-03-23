@@ -2,3 +2,7 @@ User-agent: *
 Indexes: yes
 Disallow: /login
 Noindex: /
+
+Allow: /
+
+Sitemap: https://cameroon-zoom.vercel.app/sitemap.xml

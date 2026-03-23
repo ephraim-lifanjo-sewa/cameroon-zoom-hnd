@@ -1,287 +1,82 @@
 "use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Loader2,
-  MapPin
-} from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { useUser, useFirestore, setDocumentNonBlocking } from '@/firebase';
-import { doc, collection } from 'firebase/firestore';
-import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-defaulticon-compatibility';
+import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
+import { renderToString } from 'react-dom/server';
+import { useState, useMemo } from 'react';
 
-const LocationPickerMap = dynamic(() => import('./LocationPickerMap'), { 
-  ssr: false,
-  loading: () => <div className="w-full h-full bg-muted animate-pulse flex items-center justify-center font-black uppercase text-[10px]">Opening Map...</div>
-});
-
-const REGIONS = ["Adamawa", "Central", "East", "Far North", "Littoral", "North", "Northwest", "South", "Southwest", "West"];
-const CATEGORIES = ["Food & Hospitality", "Health & Wellness", "Technology & IT", "Business & Professional", "Home & Lifestyle", "Creative & Media", "Education & Training", "Events & Entertainment"];
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-const TIMES = Array.from({ length: 24 }).flatMap((_, i) => {
-  const hour = i === 0 ? 12 : i > 12 ? i - 12 : i;
-  const ampm = i >= 12 ? 'PM' : 'AM';
-  return [`${hour}:00 ${ampm}`, `${hour}:30 ${ampm}`];
-});
+interface LocationPickerMapProps {
+  lat: number;
+  lng: number;
+  onChange: (lat: number, lng: number) => void;
+}
 
 /**
- * PROGRESSIVE ADD FORM
- * Replaced complex terms with simple "Parts".
- * Added visual map picker for professional accuracy.
+ * CARTOON PICKER PIN
+ * Thick black borders and vibrant red for easy seeing.
  */
-export function ProgressiveAddEnterpriseForm({ initialName }: { initialName?: string }) {
-  const { user } = useUser();
-  const db = useFirestore();
-  const router = useRouter();
-  const { toast } = useToast();
-  
-  const [step, setStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const createPickerPin = () => {
+  const html = renderToString(
+    <div style={{
+      width: '40px',
+      height: '40px',
+      filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))',
+    }}>
+      <svg viewBox="0 0 24 24" fill="#D71616" stroke="#000000" strokeWidth="2" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+        <circle cx="12" cy="9" r="3" fill="white" stroke="#000000" strokeWidth="1" />
+      </svg>
+    </div>
+  );
 
-  const [formData, setFormData] = useState({
-    businessName: initialName || '',
-    description: '',
-    category: 'Food & Hospitality',
-    ceoName: '',
-    employeeCount: '1-10',
-    address: '',
-    city: 'Douala',
-    state: 'Littoral',
-    phoneNumber: '',
-    whatsapp: '',
-    email: '',
-    website: '',
-    startDay: 'Monday',
-    stopDay: 'Friday',
-    openTime: '08:00 AM',
-    closeTime: '06:00 PM',
-    logo: '',
-    coverPhoto: '',
-    latitude: 4.0511,
-    longitude: 9.7679,
+  return L.divIcon({
+    className: 'picker-marker',
+    html: html,
+    iconSize: [40, 40],
+    iconAnchor: [20, 40]
   });
+};
 
-  const nextStep = () => setStep(s => Math.min(s + 1, 4));
-  const prevStep = () => setStep(s => Math.max(s - 1, 1));
+export default function LocationPickerMap({ lat, lng, onChange }: LocationPickerMapProps) {
+  const markerIcon = useMemo(() => createPickerPin(), []);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, field: 'logo' | 'coverPhoto') => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => setFormData(prev => ({ ...prev, [field]: reader.result as string }));
-    reader.readAsDataURL(file);
-  };
-
-  const handleLocationChange = (lat: number, lng: number) => {
-    setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }));
-  };
-
-  const handleSubmit = () => {
-    if (!user || !db) return;
-    if (!formData.businessName || !formData.ceoName || !formData.description || !formData.address || !formData.phoneNumber) {
-      toast({ title: "Please fill all boxes!", variant: "destructive" });
-      return;
-    }
-    setIsSubmitting(true);
-    
-    const bizId = doc(collection(db, 'businesses')).id;
-    const hours = `${formData.startDay} - ${formData.stopDay}: ${formData.openTime} - ${formData.closeTime}`;
-    const enterpriseData = {
-      ...formData,
-      id: bizId,
-      name: formData.businessName,
-      hours,
-      ownerId: user.uid,
-      averageRating: 0,
-      totalReviews: 0,
-      isVerified: false,
-      isActive: true,
-      createdDate: new Date().toISOString(),
-    };
-
-    setDocumentNonBlocking(doc(db, 'businesses', bizId), enterpriseData, { merge: true });
-    
-    toast({ title: "Business Registered!" });
-    router.push(`/business/${bizId}`);
-  };
+  function MapEvents() {
+    useMapEvents({
+      click(e) {
+        onChange(e.latlng.lat, e.latlng.lng);
+      },
+    });
+    return null;
+  }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="bg-white border-2 p-6 sm:p-10 space-y-10 shadow-sm rounded-xl">
-        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-muted-foreground border-b-2 pb-4">
-          <span>{["About", "Where", "Pictures", "Finish"][step - 1]}</span>
-          <span>Part {step}/4</span>
-        </div>
-
-        <div className="min-h-[400px]">
-          {step === 1 && (
-            <div className="space-y-8 animate-in fade-in duration-500">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase">Company Name *</Label>
-                  <Input required value={formData.businessName} onChange={e => setFormData({...formData, businessName: e.target.value})} className="h-11 border-2 rounded-lg font-bold" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase">Type of Work *</Label>
-                  <Select value={formData.category} onValueChange={(v) => setFormData({...formData, category: v})}>
-                    <SelectTrigger className="h-11 border-2 rounded-lg font-bold"><SelectValue /></SelectTrigger>
-                    <SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c} className="text-xs uppercase font-bold">{c}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase">Boss Name *</Label>
-                  <Input required value={formData.ceoName} onChange={e => setFormData({...formData, ceoName: e.target.value})} className="h-11 border-2 rounded-lg font-bold" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase">Workers Count</Label>
-                  <Select value={formData.employeeCount} onValueChange={(v) => setFormData({...formData, employeeCount: v})}>
-                    <SelectTrigger className="h-11 border-2 rounded-lg font-bold"><SelectValue /></SelectTrigger>
-                    <SelectContent>{["1-10", "11-50", "51-200", "200+"].map(size => <SelectItem key={size} value={size} className="text-xs uppercase font-bold">{size} People</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase">About the Work *</Label>
-                <Textarea required placeholder="Tell us what you do..." value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="min-h-[120px] border-2 rounded-lg italic font-bold" />
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="space-y-8 animate-in fade-in duration-500">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase">Address *</Label>
-                    <Input required placeholder="Exact building or street" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} className="h-11 border-2 rounded-lg font-bold" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase">Town *</Label>
-                      <Input required value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} className="h-11 border-2 rounded-lg font-bold" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase">Region *</Label>
-                      <Select value={formData.state} onValueChange={(v) => setFormData({...formData, state: v})}>
-                        <SelectTrigger className="h-11 border-2 rounded-lg font-bold"><SelectValue /></SelectTrigger>
-                        <SelectContent>{REGIONS.map(r => <SelectItem key={r} value={r} className="text-xs uppercase font-bold">{r}</SelectItem>)}</SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase">Phone Number *</Label>
-                    <Input required value={formData.phoneNumber} onChange={e => setFormData({...formData, phoneNumber: e.target.value})} className="h-11 border-2 rounded-lg font-bold" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase">WhatsApp Number</Label>
-                    <Input value={formData.whatsapp} onChange={e => setFormData({...formData, whatsapp: e.target.value})} className="h-11 border-2 rounded-lg font-bold" placeholder="237..." />
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-[10px] font-black uppercase text-primary tracking-widest flex items-center gap-2">
-                      <MapPin className="w-3 h-3" /> Pick Location
-                    </Label>
-                  </div>
-                  <div className="aspect-square w-full min-h-[300px] rounded-xl overflow-hidden shadow-inner border-2 border-black/5">
-                    <LocationPickerMap 
-                      lat={formData.latitude} 
-                      lng={formData.longitude} 
-                      onChange={handleLocationChange} 
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="space-y-10 animate-in fade-in duration-500">
-              <div className="space-y-6">
-                <h4 className="text-[10px] font-black uppercase text-primary tracking-widest">Times We Work</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="flex items-center gap-2">
-                    <Select value={formData.startDay} onValueChange={(v) => setFormData({...formData, startDay: v})}>
-                      <SelectTrigger className="h-10 border-2 text-xs rounded-lg font-bold"><SelectValue /></SelectTrigger>
-                      <SelectContent>{DAYS.map(d => <SelectItem key={d} value={d} className="text-xs font-bold">{d}</SelectItem>)}</SelectContent>
-                    </Select>
-                    <span className="text-[10px] font-black pt-2">TO</span>
-                    <Select value={formData.stopDay} onValueChange={(v) => setFormData({...formData, stopDay: v})}>
-                      <SelectTrigger className="h-10 border-2 text-xs rounded-lg font-bold"><SelectValue /></SelectTrigger>
-                      <SelectContent>{DAYS.map(d => <SelectItem key={d} value={d} className="text-xs font-bold">{d}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Select value={formData.openTime} onValueChange={(v) => setFormData({...formData, openTime: v})}>
-                      <SelectTrigger className="h-10 border-2 text-xs rounded-lg font-bold"><SelectValue /></SelectTrigger>
-                      <SelectContent>{TIMES.map(t => <SelectItem key={t} value={t} className="text-xs font-bold">{t}</SelectItem>)}</SelectContent>
-                    </Select>
-                    <span className="text-[10px] font-black pt-2">TO</span>
-                    <Select value={formData.closeTime} onValueChange={(v) => setFormData({...formData, closeTime: v})}>
-                      <SelectTrigger className="h-10 border-2 text-xs rounded-lg font-bold"><SelectValue /></SelectTrigger>
-                      <SelectContent>{TIMES.map(t => <SelectItem key={t} value={t} className="text-xs font-bold">{t}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t-2">
-                <div className="space-y-4">
-                  <Label className="text-[10px] font-black uppercase">Business Logo</Label>
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer hover:bg-muted/30 transition-all">
-                    <div className="flex flex-col items-center justify-center py-5">
-                      <span className="text-[10px] font-black uppercase text-muted-foreground">Pick Image</span>
-                    </div>
-                    <input type="file" accept="image/*" required onChange={e => handleImageUpload(e, 'logo')} className="hidden" />
-                  </label>
-                  {formData.logo && <img src={formData.logo} className="h-16 mt-2 rounded-lg shadow-sm border-2" alt="logo" />}
-                </div>
-                <div className="space-y-4">
-                  <Label className="text-[10px] font-black uppercase">Main Picture</Label>
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer hover:bg-muted/30 transition-all">
-                    <div className="flex flex-col items-center justify-center py-5">
-                      <span className="text-[10px] font-black uppercase text-muted-foreground">Pick Image</span>
-                    </div>
-                    <input type="file" accept="image/*" required onChange={e => handleImageUpload(e, 'coverPhoto')} className="hidden" />
-                  </label>
-                  {formData.coverPhoto && <img src={formData.coverPhoto} className="h-16 mt-2 rounded-lg shadow-sm border-2" alt="cover" />}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {step === 4 && (
-            <div className="flex flex-col items-center justify-center min-h-[400px] text-center space-y-6 animate-in zoom-in-95 duration-500">
-              <div className="w-20 h-20 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto">
-                <MapPin className="w-10 h-10" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-2xl font-black uppercase tracking-tight">You are all done!</h3>
-                <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.3em]">Ready to post to the app</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="flex gap-4 pt-8 border-t-2">
-          <Button variant="ghost" onClick={prevStep} className="h-12 px-8 font-black uppercase text-[10px] rounded-full" disabled={step === 1 || isSubmitting}>Back</Button>
-          {step < 4 ? (
-            <Button onClick={nextStep} className="h-12 flex-1 bg-secondary text-white font-black uppercase text-[10px] rounded-full shadow-lg hover:bg-black transition-all">Next Part</Button>
-          ) : (
-            <Button onClick={handleSubmit} disabled={isSubmitting} className="h-12 flex-1 bg-primary text-white font-black uppercase text-[10px] rounded-full shadow-lg hover:bg-black transition-all">
-              {isSubmitting ? <Loader2 className="animate-spin" /> : "Post My Business"}
-            </Button>
-          )}
-        </div>
+    <div className="w-full h-full relative rounded-xl overflow-hidden border-2 border-black">
+      <MapContainer 
+        center={[lat, lng]} 
+        zoom={13} 
+        style={{ height: '100%', width: '100%' }}
+        zoomControl={false}
+      >
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <MapEvents />
+        <Marker 
+          position={[lat, lng]} 
+          icon={markerIcon}
+          draggable={true}
+          eventHandlers={{
+            dragend: (e) => {
+              const marker = e.target;
+              const position = marker.getLatLng();
+              onChange(position.lat, position.lng);
+            },
+          }}
+        />
+      </MapContainer>
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[400] bg-black text-white px-4 py-2 rounded-full shadow-2xl">
+        <p className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">Move red pin to your door</p>
       </div>
     </div>
   );

@@ -1,55 +1,53 @@
+export type PriceRange = '$' | '$$' | '$$$' | '$$$$';
 
-export type City = 'Douala' | 'Yaoundé' | 'Ngaoundéré';
+export type EnterpriseCategory = 'Food & Hospitality' | 'Health & Wellness' | 'Technology & IT' | 'Business & Professional' | 'Home & Lifestyle' | 'Creative & Media' | 'Education & Training' | 'Events & Entertainment';
 
-export type Business = {
+export type Enterprise = {
   id: string;
   name: string;
-  category: string;
-  city: string;
+  businessName: string;
+  tagline?: string;
   description: string;
+  category: string;
   address: string;
-  phone_numbers: string[];
-  email: string;
-  website: string;
-  logo_url: string;
-  cover_image_url: string;
-  gallery_images: string[];
+  city: string;
+  state: string;
+  phoneNumber: string;
+  whatsapp?: string;
+  email?: string;
+  website?: string;
+  hours: string;
+  priceRange?: PriceRange | string;
+  logo: string;
+  coverPhoto: string;
   latitude: number;
   longitude: number;
-  rating: number;
-  
-  // Metadata for internal systems
-  ownerId?: string;
-  averageRating?: number;
-  totalReviews?: number;
-  photos?: string[];
-  logo?: string;
-  coverPhoto?: string;
-  location?: { lat: number; lng: number };
-  whatsapp?: string;
-  hours?: string;
-  bookingLink?: string;
-};
-
-export type Category = {
-  id: string;
-  name: string;
-  icon: string;
-  description: string;
+  averageRating: number;
+  totalReviews: number;
+  createdDate: string;
+  isVerified: boolean;
+  isActive: boolean;
+  isFeatured?: boolean;
+  ownerId: string;
+  galleryImages?: string[];
+  ceoName?: string;
+  employeeCount?: string;
+  quarter?: string;
 };
 
 export type Review = {
   id: string;
   businessId: string;
+  businessName?: string;
   reviewerId: string;
   userName: string;
   userPhoto: string;
   rating: number;
   reviewText: string;
   photos: string[];
-  date: string;
-  ownerResponse?: string | null;
-  responseDate?: string | null;
+  createdDate: string;
+  modifiedDate?: string;
+  isHelpfulCount: number;
 };
 
 export type UserProfile = {
@@ -57,10 +55,14 @@ export type UserProfile = {
   fullName: string;
   email: string;
   profilePhoto: string;
+  bio: string;
   city: string;
-  isBusinessOwner: boolean;
-  bio?: string;
-  savedBusinessIds: string[];
+  joinDate: string;
   reviewCount: number;
-  coverPhoto?: string;
+  averageRatingGiven: number;
+  isBusinessOwner: boolean;
+  isAdmin?: boolean;
+  nickname?: string;
+  tagline?: string;
+  hometown?: string;
 };

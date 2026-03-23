@@ -1,7 +1,5 @@
-
 "use client";
 
-import { Business } from '@/app/lib/types';
 import { Star, MessageCircle, ChevronRight, MapPin, X, ShoppingCart, Building2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -9,11 +7,37 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
+// ----- Types directly in this file -----
+interface BusinessService {
+  id: string;
+  name: string;
+  description?: string;
+  price?: number;
+  image?: string;
+  link?: string;
+}
+
+interface Business {
+  id: string;
+  name: string;
+  category?: string;
+  city?: string;
+  averageRating?: number;
+  totalReviews?: number;
+  coverPhoto?: string;
+  logo?: string;
+  bookingLink?: string;
+  website?: string;
+  whatsapp?: string;
+  services?: BusinessService[];
+}
+
 interface MapBusinessCardProps {
   business: Business;
   onClose: () => void;
 }
 
+// ----- Component -----
 export function MapBusinessCard({ business, onClose }: MapBusinessCardProps) {
   if (!business) return null;
 

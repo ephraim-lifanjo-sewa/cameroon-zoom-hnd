@@ -1,15 +1,29 @@
 
 import { NextResponse } from 'next/server';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getFirestore, collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { firebaseConfig } from '@/firebase/config';
+
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const db = getFirestore(app);
 
 /**
- * GET /api/health
- * Simple status check for the API layer.
+ * GET /api/categories
+ * Fetch all enterprise categories and sectors.
  */
 export async function GET() {
-  return NextResponse.json({
-    status: "operational",
-    service: "Cameroon Zoom API",
-    version: "1.0.0",
-    timestamp: new Date().toISOString()
-  }, { status: 200 });
+  try {
+    const snapshot = await getDocs(query(collection(db, 'categories'), orderBy('name', 'asc')));
+    const categories = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    return NextResponse.json({
+      count: categories.length,
+      data: categories
+    }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json({ error: "Failed to fetch categories", message: error.message }, { status: 500 });
+  }
 }

@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -16,7 +17,8 @@
         "savedBusinessIds": { "type": "array", "items": { "type": "string" } },
         "nickname": { "type": "string" },
         "tagline": { "type": "string" },
-        "hometown": { "type": "string" }
+        "hometown": { "type": "string" },
+        "isAdmin": { "type": "boolean" }
       }
     },
     "Business": {
@@ -46,6 +48,60 @@
         "isVerified": { "type": "boolean" },
         "isActive": { "type": "boolean" }
       }
+    },
+    "Review": {
+      "title": "Review",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "businessId": { "type": "string" },
+        "businessName": { "type": "string" },
+        "reviewerId": { "type": "string" },
+        "userName": { "type": "string" },
+        "rating": { "type": "number" },
+        "reviewText": { "type": "string" },
+        "photos": { "type": "array", "items": { "type": "string" } },
+        "createdDate": { "type": "string", "format": "date-time" }
+      }
+    },
+    "VerificationRequest": {
+      "title": "VerificationRequest",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "businessId": { "type": "string" },
+        "businessName": { "type": "string" },
+        "userId": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "redundant"] },
+        "nui": { "type": "string" },
+        "rccm": { "type": "string" },
+        "idScan": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "auth": {
+    "providers": ["email"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/backend/entities/UserProfile" },
+      "description": "Institutional user profiles"
+    },
+    "/businesses/{businessId}": {
+      "schema": { "$ref": "#/backend/entities/Business" },
+      "description": "Verified and pending business listings"
+    },
+    "/reviews/{reviewId}": {
+      "schema": { "$ref": "#/backend/entities/Review" },
+      "description": "Public feedback logs"
+    },
+    "/verificationRequests/{requestId}": {
+      "schema": { "$ref": "#/backend/entities/VerificationRequest" },
+      "description": "Ownership claim documents"
     }
   }
 }

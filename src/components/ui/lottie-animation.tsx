@@ -1,16 +1,13 @@
-
 "use client";
 
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { cn } from '@/lib/utils';
+import { CheckCircle2 } from 'lucide-react';
 
-/**
- * Dynamically import the Lottie player to avoid SSR/Turbopack resolution issues.
- * This ensures the heavy animation logic only loads in the browser.
- */
-const LottiePlayer = dynamic(() => import('lottie-react'), { 
+const LottiePlayer = dynamic(() => import('lottie-react').then(mod => mod.default), { 
   ssr: false,
-  loading: () => <div className="animate-pulse bg-muted rounded-md w-full h-full" />
+  loading: () => <div className="animate-pulse bg-muted rounded-xl w-full h-full" />
 });
 
 interface LottieAnimationProps {
@@ -19,17 +16,13 @@ interface LottieAnimationProps {
   className?: string;
 }
 
-/**
- * Reusable Lottie Component
- * Lazily fetches animation JSON from a URL and renders using a client-only player.
- */
 export function LottieAnimation({ url, loop = true, className }: LottieAnimationProps) {
   const [animationData, setAnimationData] = useState<any>(null);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
     
-    // Asynchronously fetch the animation JSON
     fetch(url)
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch animation');
@@ -40,14 +33,15 @@ export function LottieAnimation({ url, loop = true, className }: LottieAnimation
       })
       .catch((err) => {
         if (isMounted) {
-          console.error("Lottie fetch error:", err);
+          console.warn("Lottie fetch error:", err);
+          setHasError(true);
         }
       });
     
     return () => { isMounted = false; };
   }, [url]);
 
-  // Return a placeholder div while loading data
+  if (hasError) return <div className={cn(className, "bg-muted rounded-xl flex items-center justify-center")}><CheckCircle2 className="w-12 h-12 text-primary opacity-20" /></div>;
   if (!animationData) return <div className={className} />;
 
   return (

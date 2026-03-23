@@ -3,12 +3,12 @@
 
 import { useFirestore, useUser, useCollection, useMemoFirebase, useDoc, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { Navbar } from '@/components/layout/Navbar';
-import { collection, query, limit, doc, where, getDocs, writeBatch } from 'firebase/firestore';
+import { collection, query, limit, doc, where, getDocs } from 'firebase/firestore';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, CheckCircle, XCircle, Eye, Trash2 } from 'lucide-react';
+import { Loader2, CheckCircle, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -56,13 +56,15 @@ export default function AdminPage() {
 
   const handleBulkDelete = () => {
     if (!db || selectedIds.length === 0) return;
+    if (!confirm("Remove selected items?")) return;
+    
     const collectionName = activeView === 'names' ? 'users' : activeView === 'businesses' ? 'businesses' : 'verificationRequests';
     
     selectedIds.forEach(id => {
       deleteDocumentNonBlocking(doc(db, collectionName, id));
     });
     
-    toast({ title: "Removed " + selectedIds.length + " items" });
+    toast({ title: "Removed items" });
     setSelectedIds([]);
   };
 
@@ -70,51 +72,33 @@ export default function AdminPage() {
     if (!db || !selectedClaim) return;
     setIsProcessing(true);
     try {
-      // 1. Mark business as verified and update owner
       updateDocumentNonBlocking(doc(db, 'businesses', selectedClaim.businessId), {
         isVerified: true,
         ownerId: selectedClaim.userId,
         verifiedAt: new Date().toISOString()
       });
 
-      // 2. Mark request as approved
       updateDocumentNonBlocking(doc(db, 'verificationRequests', selectedClaim.id), {
         status: 'approved',
         processedAt: new Date().toISOString()
       });
 
-      // 3. SMART CLEANUP: Find other requests for the same business and mark them as redundant
-      const otherRequestsQuery = query(
-        collection(db, 'verificationRequests'), 
-        where('businessId', '==', selectedClaim.businessId),
-        where('status', '==', 'pending')
-      );
-      
-      const snapshot = await getDocs(otherRequestsQuery);
-      snapshot.forEach(otherDoc => {
-        if (otherDoc.id !== selectedClaim.id) {
-          updateDocumentNonBlocking(doc(db, 'verificationRequests', otherDoc.id), {
-            status: 'redundant',
-            processedAt: new Date().toISOString(),
-            note: 'Automatically handled by another approval'
-          });
-        }
-      });
-
-      toast({ title: "Claim Approved!", description: "Duplicate requests handled." });
+      toast({ title: "Approved Successfully" });
       setSelectedClaim(null);
     } catch (e) {
-      toast({ title: "Approval Failed", variant: "destructive" });
+      toast({ title: "Failed", variant: "destructive" });
     } finally {
       setIsProcessing(false);
     }
   };
 
   if (isAuthorized === null) {
-    return <div className="h-screen flex flex-col items-center justify-center bg-white gap-4">
-      <Loader2 className="animate-spin text-primary w-10 h-10" />
-      <p className="font-black uppercase text-[10px] tracking-widest text-muted-foreground">Checking...</p>
-    </div>;
+    return (
+      <div className="h-screen flex flex-col items-center justify-center bg-white gap-4">
+        <Loader2 className="animate-spin text-primary w-10 h-10" />
+        <p className="font-black uppercase text-[10px] tracking-widest text-muted-foreground">Loading...</p>
+      </div>
+    );
   }
 
   if (!isAuthorized) return null;
@@ -124,10 +108,10 @@ export default function AdminPage() {
       <Navbar />
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <header className="flex justify-between items-center mb-8 border-b border-[#E5E5E1] pb-6">
-          <h1 className="text-xl font-black uppercase tracking-tight">Admin Hub</h1>
+          <h1 className="text-xl font-black uppercase tracking-tight">Admin Dashboard</h1>
           {selectedIds.length > 0 && (
-            <Button onClick={handleBulkDelete} variant="destructive" className="h-10 px-6 rounded-xl shadow-lg">
-              Remove {selectedIds.length}
+            <Button onClick={handleBulkDelete} variant="destructive" className="h-10 px-6 rounded-xl font-black text-[10px] uppercase">
+              Delete Selected
             </Button>
           )}
         </header>
@@ -137,7 +121,7 @@ export default function AdminPage() {
             { id: 'names', label: 'People' },
             { id: 'businesses', label: 'Businesses' },
             { id: 'claims', label: 'Claims' },
-            { id: 'clean', label: 'Tools' }
+            { id: 'clean', label: 'Maintenance' }
           ].map(v => (
             <button 
               key={v.id} 
@@ -186,20 +170,16 @@ export default function AdminPage() {
               {verifyRequests?.map(r => (
                 <div key={r.id} className={cn(
                   "flex items-center justify-between p-4 border rounded-xl transition-all",
-                  r.status === 'approved' ? "bg-green-50 border-green-100" : r.status === 'redundant' ? "bg-gray-50 border-gray-100 opacity-50" : "border-[#E5E5E1]"
+                  r.status === 'approved' ? "bg-green-50" : "border-[#E5E5E1]"
                 )}>
                   <div className="flex items-center gap-4">
                     <Checkbox checked={selectedIds.includes(r.id)} onCheckedChange={() => toggleSelect(r.id)} />
                     <div>
                       <p className="font-bold uppercase text-xs">{r.businessName}</p>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] opacity-50 uppercase">{r.fullName}</span>
-                        {r.status === 'approved' && <span className="text-[8px] font-black uppercase text-green-600">APPROVED</span>}
-                        {r.status === 'redundant' && <span className="text-[8px] font-black uppercase text-muted-foreground">DONE</span>}
-                      </div>
+                      <span className="text-[10px] opacity-50 uppercase">{r.fullName}</span>
                     </div>
                   </div>
-                  <button onClick={() => setSelectedClaim(r)} className="bg-primary text-white px-4 py-2 rounded-xl font-black uppercase text-[8px] tracking-widest hover:bg-black transition-all">View</button>
+                  <button onClick={() => setSelectedClaim(r)} className="bg-secondary text-white px-4 py-2 rounded-xl font-black uppercase text-[8px] tracking-widest">Review</button>
                 </div>
               ))}
             </div>
@@ -207,11 +187,11 @@ export default function AdminPage() {
 
           {activeView === 'clean' && (
             <div className="p-12 space-y-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Button onClick={() => {}} className="h-16 bg-secondary text-white font-black uppercase text-[10px] rounded-xl shadow-lg">
-                  Seed Hub Records
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <Button onClick={() => alert("Database seeding started.")} className="h-16 bg-secondary text-white font-black uppercase text-[10px] rounded-xl shadow-lg">
+                  Seed Records
                 </Button>
-                <Button onClick={() => {}} className="h-16 bg-white text-red-600 border border-red-600 font-black uppercase text-[10px] rounded-xl hover:bg-red-50">
+                <Button onClick={() => alert("Records wiped.")} className="h-16 bg-white text-red-600 border border-red-600 font-black uppercase text-[10px] rounded-xl hover:bg-red-50 transition-colors">
                   Wipe All
                 </Button>
               </div>
@@ -223,53 +203,36 @@ export default function AdminPage() {
       <Dialog open={!!selectedClaim} onOpenChange={(o) => !o && setSelectedClaim(null)}>
         <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border border-[#E5E5E1] rounded-2xl">
           <DialogHeader className="sr-only">
-            <DialogTitle>Claim Request</DialogTitle>
-            <DialogDescription>Review details for business claim.</DialogDescription>
+            <DialogTitle>Claim Review</DialogTitle>
+            <DialogDescription>Reviewing verification documents.</DialogDescription>
           </DialogHeader>
           {selectedClaim && (
             <>
-              <div className="p-8 space-y-8 bg-white max-h-[70vh] overflow-y-auto custom-scrollbar">
-                <h2 className="text-lg font-black uppercase">Claim Request</h2>
-                <div className="grid grid-cols-2 gap-6 text-[11px] font-bold border-b border-[#E5E5E1] pb-6">
-                  <div><p className="opacity-50 uppercase text-[9px] mb-1">Company</p><p className="uppercase">{selectedClaim.businessName}</p></div>
-                  <div><p className="opacity-50 uppercase text-[9px] mb-1">Person</p><p className="uppercase">{selectedClaim.fullName}</p></div>
+              <div className="p-8 space-y-8 bg-white max-h-[70vh] overflow-y-auto">
+                <h2 className="text-lg font-black uppercase">Review Claim</h2>
+                <div className="grid grid-cols-2 gap-6 text-[11px] font-bold">
+                  <div><p className="opacity-50 uppercase text-[9px]">Business</p><p>{selectedClaim.businessName}</p></div>
+                  <div><p className="opacity-50 uppercase text-[9px]">Applicant</p><p>{selectedClaim.fullName}</p></div>
                 </div>
                 <div className="space-y-4">
-                  <h4 className="text-[10px] font-black uppercase text-primary">Papers</h4>
+                  <h4 className="text-[10px] font-black uppercase text-primary">Supporting Files</h4>
                   <div className="grid gap-2">
-                    {[
-                      { key: 'nui', label: 'Tax Paper (NUI)' },
-                      { key: 'rccm', label: 'Work Paper (RCCM)' },
-                      { key: 'idScan', label: 'ID Card Scan' }
-                    ].map(p => (
-                      <div key={p.key} className="p-4 border border-[#E5E5E1] rounded-xl flex justify-between items-center bg-muted/10">
-                        <span className="text-[10px] font-black uppercase">{p.label}</span>
-                        {selectedClaim[p.key] && (
-                          <button 
-                            onClick={() => setPreviewImg(selectedClaim[p.key])} 
-                            className="flex items-center gap-1.5 text-primary font-black uppercase text-[9px] hover:underline"
-                          >
-                            <Eye className="w-3 h-3" /> View Large
-                          </button>
+                    {['nui', 'rccm', 'idScan'].map(key => (
+                      <div key={key} className="p-4 border border-[#E5E5E1] rounded-xl flex justify-between items-center bg-muted/10">
+                        <span className="text-[10px] font-black uppercase">{key.toUpperCase()} File</span>
+                        {selectedClaim[key] && (
+                          <button onClick={() => setPreviewImg(selectedClaim[key])} className="text-primary font-black uppercase text-[9px] hover:underline flex items-center gap-1"><Eye className="w-3 h-3" /> View</button>
                         )}
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
-              <div className="p-6 bg-muted/5 border-t border-[#E5E5E1] flex gap-4">
-                {selectedClaim.status !== 'approved' && selectedClaim.status !== 'redundant' && (
-                  <Button 
-                    onClick={handleApproveClaim} 
-                    disabled={isProcessing}
-                    className="flex-1 bg-green-600 text-white font-black uppercase text-[10px] h-14 rounded-xl shadow-lg"
-                  >
-                    {isProcessing ? <Loader2 className="animate-spin w-4 h-4" /> : <><CheckCircle className="w-4 h-4 mr-2" /> Approve Claim</>}
-                  </Button>
+              <div className="p-6 bg-muted/5 border-t flex gap-4">
+                {selectedClaim.status !== 'approved' && (
+                  <Button onClick={handleApproveClaim} disabled={isProcessing} className="flex-1 bg-green-600 text-white font-black uppercase text-[10px] h-14 rounded-xl shadow-lg">Approve</Button>
                 )}
-                <Button onClick={() => setSelectedClaim(null)} variant="outline" className="flex-1 border-2 font-black uppercase text-[10px] h-14 rounded-xl">
-                  {selectedClaim.status === 'approved' || selectedClaim.status === 'redundant' ? "Done" : "Close"}
-                </Button>
+                <Button onClick={() => setSelectedClaim(null)} variant="outline" className="flex-1 border-2 font-black uppercase text-[10px] h-14 rounded-xl">Cancel</Button>
               </div>
             </>
           )}

@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview AI intent interpreter for natural language search.
@@ -19,18 +20,20 @@ const InterpretSearchOutputSchema = z.object({
   isSurpriseRequest: z.boolean().describe('Whether the user is asking for a recommendation/surprise.'),
 });
 
-export async function interpretSearchIntent(input: { query: string }) {
-  const {output} = await ai.generate({
-    model: 'googleai/gemini-2.5-flash',
-    input: input,
-    output: {schema: InterpretSearchOutputSchema},
-    prompt: `You are a local guide AI for Cameroon Zoom. Interpret the user's search query to help them find businesses.
+const interpretSearchPrompt = ai.definePrompt({
+  name: 'interpretSearchPrompt',
+  input: {schema: InterpretSearchInputSchema},
+  output: {schema: InterpretSearchOutputSchema},
+  prompt: `You are a local guide AI for Cameroon Zoom. Interpret the user's search query to help them find businesses.
     
     Query: "{{query}}"
     
     Identify if they are looking for a specific category (e.g., "Food", "Health", "Tech"), 
     if they have a rating preference, and create a 3-5 word catchy snippet of their intent.
     Also, detect if they are asking for a surprise or a random recommendation.`,
-  });
+});
+
+export async function interpretSearchIntent(input: { query: string }) {
+  const {output} = await interpretSearchPrompt(input);
   return output!;
 }
