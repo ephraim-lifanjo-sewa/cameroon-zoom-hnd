@@ -4,6 +4,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { FirebaseClientProvider } from '@/firebase';
 import { LanguageProvider } from '@/components/layout/LanguageProvider';
+import { Analytics } from '@vercel/analytics/next';
 import { useEffect } from 'react';
 import { Analytics } from "@vercel/analytics/next"
 
@@ -55,6 +56,7 @@ export default function RootLayout({
             </div>
           </LanguageProvider>
         </FirebaseClientProvider>
+        <Analytics />
       </body>
     </html>
   );
