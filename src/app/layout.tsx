@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { FirebaseClientProvider } from '@/firebase';
 import { LanguageProvider } from '@/components/layout/LanguageProvider';
 import { useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/next';
 
 /**
  * ROOT LAYOUT - PRODUCTION STABILITY
@@ -54,6 +55,7 @@ export default function RootLayout({
             </div>
           </LanguageProvider>
         </FirebaseClientProvider>
+        <Analytics />
       </body>
     </html>
   );
