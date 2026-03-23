@@ -1,8 +1,18 @@
 User-agent: *
-Indexes: yes
-Disallow: /login
-Noindex: /
-
 Allow: /
 
-Sitemap: https://cameroon-zoom.vercel.app/sitemap.xml
+# Allow all search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Sitemap
+Sitemap: https://cameroonzoom.vercel.app/sitemap.xml
