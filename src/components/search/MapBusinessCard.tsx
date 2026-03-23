@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import "leaflet/dist/leaflet.css";
 import { cn } from '@/lib/utils';
 
 // ----- Types directly in this file -----
