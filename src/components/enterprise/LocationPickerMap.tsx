@@ -6,7 +6,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet-defaulticon-compatibility';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
 import { renderToString } from 'react-dom/server';
-import { useState, useMemo } from 'react';
+import {  useMemo } from 'react';
 
 interface LocationPickerMapProps {
   lat: number;

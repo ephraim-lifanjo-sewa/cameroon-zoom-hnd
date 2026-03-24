@@ -122,8 +122,8 @@ export function Navbar() {
             </Sheet>
           ) : (
             <div className="flex items-center gap-2">
-              <Button asChild variant="ghost" className="text-[10px] font-bold uppercase h-10 px-4"><Link href="/login">Login</Link></Button>
-              <Button asChild className="text-[10px] font-bold uppercase h-10 px-6 bg-primary text-white rounded-xl hover:bg-black"><Link href="/signup">Sign Up</Link></Button>
+              <Button asChild variant="ghost" className="text-[10px] font-bold uppercase h-10 px-2"><Link href="/login">Login</Link></Button>
+              <Button asChild className="text-[10px] font-bold uppercase h-10 px-1 bg-primary text-white rounded-xl hover:bg-black"><Link href="/signup">Sign Up</Link></Button>
             </div>
           )}
         </div>
