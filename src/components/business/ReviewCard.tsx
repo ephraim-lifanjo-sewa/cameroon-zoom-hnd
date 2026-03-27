@@ -33,7 +33,7 @@ export function ReviewCard({ review, hideUser = false }: ReviewCardProps) {
     }
   };
 
-  const defaultUser = "https://s3-media0.fl.yelpcdn.com/srv0/yelp_styleguide/bf5ff8a79310/assets/img/default_avatars/user_medium_square.png";
+  const defaultUser = "/public/images/university/profile/default4.jpg";
 
   return (
     <div className="space-y-6 py-8 border-b border-[#E5E5E1] last:border-0">
@@ -64,7 +64,7 @@ export function ReviewCard({ review, hideUser = false }: ReviewCardProps) {
           
           <div className="text-[14px] leading-relaxed">
             <span className="font-bold uppercase text-xs mr-2">{hideUser ? review.businessName : review.userName}</span>
-            <span className="text-secondary/80 font-medium italic">"{displayText}{!isExpanded && isLongText && "..."}"</span>
+            <span className="text-secondary/80 font-medium italic">&quot;{displayText}{!isExpanded && isLongText && "..."}&quot;</span>
           </div>
           
           {isLongText && (

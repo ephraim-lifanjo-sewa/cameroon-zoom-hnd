@@ -1,10 +1,9 @@
 "use client";
 
 import { Enterprise } from '@/app/lib/types';
-import { Star, MapPin, Building2 } from 'lucide-react';
+import { Star, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-
 interface EnterpriseCardProps {
   enterprise: Enterprise;
   isHighlighted?: boolean;
@@ -37,12 +36,12 @@ export function EnterpriseCard({ enterprise, isHighlighted, onMouseEnter, onMous
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <div className="relative w-full aspect-[16/9] bg-muted flex items-center justify-center overflow-hidden border-b border-[#E5E5E1]">
+      <div className="relative w-full aspect-video bg-muted flex items-center justify-center overflow-hidden border-b border-[#E5E5E1]">
         {thumbnail ? (
-          <img src={thumbnail} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          <Image src={thumbnail} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
           <div className="flex flex-col items-center gap-2 opacity-10">
-            <Building2 className="w-10 h-10" />
+                <img src="/public/images/hotels/chambre2.jpg" alt="background business"/>
           </div>
         )}
         {enterprise.isVerified && (

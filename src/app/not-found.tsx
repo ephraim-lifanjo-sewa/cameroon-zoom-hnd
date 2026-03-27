@@ -20,7 +20,7 @@ export default function NotFound() {
             </p>
           </div>
 
-          <figure className="relative mx-auto w-full max-w-[650px] aspect-[650/520]">
+          <figure className="relative mx-auto w-full max-w-162.5 aspect-[650/520]">
             <picture>
               <source 
                 media="(max-width: 599px)" 

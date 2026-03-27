@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState } from 'react';
@@ -51,7 +52,7 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
     try {
       await initiateEmailSignIn(auth, values.email, values.password);
       toast({ title: "Welcome back", description: "Authenticating Hub records..." });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({ 
         title: "Login Failed", 
         description: "Invalid credentials. Please try again.", 
@@ -63,7 +64,7 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px] rounded-xl border-2">
+      <DialogContent className="sm:max-w-100 rounded-xl border-2">
         <DialogHeader className="text-center space-y-2">
           <DialogTitle className="text-2xl font-black uppercase tracking-tight text-secondary">Sign In</DialogTitle>
           <DialogDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Access your directory logs</DialogDescription>
@@ -118,7 +119,7 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
             onClick={onSwitchToSignUp}
             className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest hover:text-primary transition-colors"
           >
-            New to Cameroon Zoom? <span className="text-primary underline">Join Hub</span>
+            New to Cameroon Zoom? <span className="text-primary underline">Join app</span>
           </button>
         </div>
       </DialogContent>

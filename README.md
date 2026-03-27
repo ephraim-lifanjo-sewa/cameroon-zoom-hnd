@@ -16,8 +16,3 @@ High-fidelity institutional business directory for Cameroon. Find and contact ve
 - **Auth**: Firebase Authentication
 - **AI**: Genkit with Gemini 2.0 Flash
 - **Styling**: Tailwind CSS & ShadCN UI
-"# cameroon-zoom" 
-"# cameroonzoom-project" 
-"# cameroonzoom-project" 
-"# cameroonzoom-project" 
-"# cameroon-zoom-hnd" 

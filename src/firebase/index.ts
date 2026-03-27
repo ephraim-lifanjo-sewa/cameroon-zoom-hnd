@@ -1,33 +1,44 @@
 'use client';
 
 import { firebaseConfig } from '@/firebase/config';
-import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { 
-  initializeFirestore, 
-  persistentLocalCache, 
+import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  signInWithEmailAndPassword,
+  UserCredential,
+  signOut,
+  onAuthStateChanged,
+  User
+} from 'firebase/auth';
+import {
+  initializeFirestore,
+  persistentLocalCache,
   persistentMultipleTabManager,
   Firestore,
-  getFirestore
+  getFirestore,
+  doc,
+  setDoc,
+  serverTimestamp
 } from 'firebase/firestore';
+
+import { useEffect, useState } from 'react';
 
 let app: FirebaseApp;
 let firestore: Firestore;
 
-/**
- * Initializes Firebase and Firestore with offline persistence.
- * Safe for multiple calls across different components or re-renders.
- */
+/* -------------------- INIT -------------------- */
+
 export function initializeFirebase() {
   const apps = getApps();
+
   if (apps.length > 0) {
     app = apps[0];
   } else {
     try {
-      // Attempt to initialize with the provided config object
       app = initializeApp(firebaseConfig);
-    } catch (e) {
-      // Fallback to environment-based initialization if available
+    } catch {
       app = initializeApp();
     }
   }
@@ -35,26 +46,19 @@ export function initializeFirebase() {
   return getSdks(app);
 }
 
-/**
- * Retrieves SDK instances. 
- * Safely handles Firestore initialization to avoid "already called" errors.
- */
 export function getSdks(firebaseApp: FirebaseApp, existingDb?: Firestore) {
   let db: Firestore;
-  
+
   if (existingDb) {
     db = existingDb;
   } else {
     try {
-      // Try initializing with persistence options (this can only happen once)
       db = initializeFirestore(firebaseApp, {
         localCache: persistentLocalCache({
-          tabManager: persistentMultipleTabManager()
-        })
+          tabManager: persistentMultipleTabManager(),
+        }),
       });
-    } catch (e) {
-      // If already initialized (e.g. by another component or during HMR), 
-      // retrieve the existing instance instead of throwing.
+    } catch {
       db = getFirestore(firebaseApp);
     }
   }
@@ -62,9 +66,88 @@ export function getSdks(firebaseApp: FirebaseApp, existingDb?: Firestore) {
   return {
     firebaseApp,
     auth: getAuth(firebaseApp),
-    firestore: db
+    firestore: db,
   };
 }
+
+/* -------------------- HOOKS -------------------- */
+
+export function useAuth() {
+  const { auth } = initializeFirebase();
+  return auth;
+}
+
+export function useFirestore() {
+  const { firestore } = initializeFirebase();
+  return firestore;
+}
+
+export function useUser() {
+  const auth = useAuth();
+  const [user, setUser] = useState<User | null>(auth.currentUser);
+  const [loading, setLoading] = useState(!auth.currentUser);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setLoading(false);
+    });
+
+    return unsub;
+  }, [auth]);
+
+  return { user, loading };
+}
+
+/* -------------------- SIGN UP -------------------- */
+
+export async function initiateEmailSignUp(
+  email: string,
+  password: string,
+  data?: {
+    name?: string;
+    photoURL?: string;
+  }
+): Promise<UserCredential> {
+  const { auth, firestore } = initializeFirebase();
+
+  const cred = await createUserWithEmailAndPassword(auth, email, password);
+
+  if (data?.name || data?.photoURL) {
+    await updateProfile(cred.user, {
+      displayName: data?.name,
+      photoURL: data?.photoURL,
+    });
+  }
+
+  await setDoc(doc(firestore, 'users', cred.user.uid), {
+    email: cred.user.email,
+    name: data?.name || '',
+    photoURL: data?.photoURL || '',
+    createdAt: serverTimestamp(),
+  });
+
+  return cred;
+}
+
+/* -------------------- SIGN IN -------------------- */
+
+export async function initiateEmailSignIn(
+  email: string,
+  password: string
+): Promise<UserCredential> {
+  const { auth } = initializeFirebase();
+  return signInWithEmailAndPassword(auth, email, password);
+}
+
+/* -------------------- LOGOUT -------------------- */
+
+export async function logout() {
+  const { auth } = initializeFirebase();
+  return signOut(auth);
+}
+
+/* -------------------- EXPORTS -------------------- */
 
 export * from './provider';
 export * from './client-provider';

@@ -53,7 +53,7 @@ export function MapBusinessCard({ business, onClose }: MapBusinessCardProps) {
         <X className="w-3 h-3" />
       </button>
 
-      <div className="flex h-[100px] sm:h-[120px]">
+      <div className="flex h-[100px] sm:h-30">
         <Link href={`/business/${business.id}`} className="relative w-[100px] sm:w-[120px] shrink-0 bg-muted flex items-center justify-center overflow-hidden">
           {business.coverPhoto || business.logo ? (
             <Image 
@@ -73,7 +73,7 @@ export function MapBusinessCard({ business, onClose }: MapBusinessCardProps) {
           </Badge>
         </Link>
 
-        <div className="p-3 flex-grow flex flex-col justify-between overflow-hidden">
+        <div className="p-3 grow flex flex-col justify-between overflow-hidden">
           <Link href={`/business/${business.id}`} className="block hover:opacity-80 transition-opacity">
             <h3 className="font-black text-[12px] sm:text-[14px] uppercase tracking-tight truncate leading-none text-secondary">
               {business.name}
@@ -112,7 +112,7 @@ export function MapBusinessCard({ business, onClose }: MapBusinessCardProps) {
               <Button 
                 size="sm" 
                 variant="outline"
-                className="h-8 px-2 rounded-[4px] flex-1 border-2 text-[#25D366] border-[#25D366] font-black uppercase text-[9px] tracking-widest transition-all"
+                className="h-8 px-2 rounded-sm flex-1 border-2 text-[#25D366] border-[#25D366] font-black uppercase text-[9px] tracking-widest transition-all"
                 asChild
               >
                 <a href={`https://wa.me/${business.whatsapp}`} target="_blank">

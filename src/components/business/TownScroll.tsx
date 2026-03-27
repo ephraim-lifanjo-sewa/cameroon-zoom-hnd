@@ -5,23 +5,18 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 
-/**
- * Town Navigation Hub
- * Vibrant, "cartoony" neubrutalist design with thick borders and fun shadows.
- * Re-ordered: Ngaoundéré first (Green), Douala second (Yellow).
- * Updated Layout: Grid-based to use more width moderately.
- */
+
 const TOWNS = [
   { 
     id: 'ngaoundere', 
     name: 'Ngaoundéré', 
-    image: PlaceHolderImages.find(img => img.id === 'town-ngr')?.imageUrl || 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?q=80&w=1080',
+    image: PlaceHolderImages.find(img => img.id === 'town-ngr')?.imageUrl || '/public/images/ngaoundere.jpg',
     color: 'bg-green-400'
   },
   { 
     id: 'douala', 
     name: 'Douala', 
-    image: PlaceHolderImages.find(img => img.id === 'town-dla')?.imageUrl || 'https://images.unsplash.com/photo-1594386479412-fa62932f4cdc?q=80&w=800',
+    image: PlaceHolderImages.find(img => img.id === 'town-dla')?.imageUrl || '/public/images/Douala-City-searchcameroon-270x400.jpg',
     color: 'bg-yellow-400'
   },
 ];

@@ -104,7 +104,7 @@ export function WriteReviewModal({
         </button>
       </div>
 
-      <div className="flex-grow overflow-y-auto p-6 sm:p-12 flex flex-col items-center bg-white">
+      <div className="grow overflow-y-auto p-6 sm:p-12 flex flex-col items-center bg-white">
         <div className="w-full max-w-xl space-y-10 py-4">
           
           <div className="flex justify-center gap-2">

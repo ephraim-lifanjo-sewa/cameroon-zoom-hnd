@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { 
@@ -40,7 +41,7 @@ export function ShareModal({ open, onOpenChange, businessName, businessId }: Sha
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[300px] rounded-md border-2 p-6 gap-4 shadow-2xl">
+      <DialogContent className="sm:max-w-75 rounded-md border-2 p-6 gap-4 shadow-2xl">
         <DialogTitle className="sr-only">Share {businessName}</DialogTitle>
         <DialogDescription className="sr-only">Choose a platform to share this enterprise profile.</DialogDescription>
         

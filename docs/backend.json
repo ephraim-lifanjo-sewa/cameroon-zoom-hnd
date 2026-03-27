@@ -1,107 +1,309 @@
-
 {
   "entities": {
     "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "UserProfile",
       "type": "object",
+      "description": "Represents a user of the Cameroon Zoom application, which can be a regular user or a business owner. This entity stores core profile information and relationships to other data.",
       "properties": {
-        "id": { "type": "string" },
-        "fullName": { "type": "string" },
-        "profilePhoto": { "type": "string" },
-        "bio": { "type": "string" },
-        "city": { "type": "string" },
-        "joinDate": { "type": "string", "format": "date-time" },
-        "reviewCount": { "type": "number" },
-        "averageRatingGiven": { "type": "number" },
-        "isBusinessOwner": { "type": "boolean" },
-        "savedBusinessIds": { "type": "array", "items": { "type": "string" } },
-        "nickname": { "type": "string" },
-        "tagline": { "type": "string" },
-        "hometown": { "type": "string" },
-        "isAdmin": { "type": "boolean" }
-      }
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "fullName": {
+          "type": "string",
+          "description": "The full name of the user."
+        },
+        "profilePhotoUrl": {
+          "type": "string",
+          "description": "URL to the user's profile photo.",
+          "format": "uri"
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, used as a unique identifier for login. (Assumed an external authentication system handles actual passwords).",
+          "format": "email"
+        },
+        "city": {
+          "type": "string",
+          "description": "The city where the user is located (e.g., Douala, Yaoundé, Ngaoundéré)."
+        },
+        "reviewCount": {
+          "type": "number",
+          "description": "The total number of reviews written by this user."
+        },
+        "isBusinessOwner": {
+          "type": "boolean",
+          "description": "Flag indicating if the user is a business owner. True if they own at least one business."
+        },
+        "savedBusinessIds": {
+          "type": "array",
+          "description": "An array of unique identifiers for Businesses saved by this user as favorites. (Relationship: UserProfile N:N Business)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ownedBusinessIds": {
+          "type": "array",
+          "description": "An array of unique identifiers for Businesses owned by this user. (Relationship: UserProfile 1:N Business)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "fullName",
+        "email",
+        "city",
+        "reviewCount",
+        "isBusinessOwner"
+      ]
+    },
+    "Category": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Category",
+      "type": "object",
+      "description": "Represents a business category, used to organize and filter business listings within the application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Category entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The descriptive name of the business category (e.g., 'Food & Restaurants', 'Healthcare')."
+        },
+        "iconUrl": {
+          "type": "string",
+          "description": "URL to an SVG or image icon representing the category.",
+          "format": "uri"
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief explanation or summary of the category."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
     },
     "Business": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Business",
       "type": "object",
+      "description": "Represents a business listing in the Cameroon Zoom directory, containing all details about the business.",
       "properties": {
-        "id": { "type": "string" },
-        "businessName": { "type": "string" },
-        "tagline": { "type": "string" },
-        "description": { "type": "string" },
-        "category": { "type": "string" },
-        "address": { "type": "string" },
-        "city": { "type": "string" },
-        "state": { "type": "string" },
-        "phoneNumber": { "type": "string" },
-        "email": { "type": "string" },
-        "website": { "type": "string" },
-        "hours": { "type": "string" },
-        "priceRange": { "type": "string" },
-        "coverPhoto": { "type": "string" },
-        "logo": { "type": "string" },
-        "latitude": { "type": "number" },
-        "longitude": { "type": "number" },
-        "averageRating": { "type": "number" },
-        "totalReviews": { "type": "number" },
-        "ownerId": { "type": "string" },
-        "isVerified": { "type": "boolean" },
-        "isActive": { "type": "boolean" }
-      }
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Business entity."
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who owns and manages this business listing. (Relationship: UserProfile 1:N Business)"
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Reference to the Category this business belongs to. (Relationship: Category 1:N Business)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The official or trade name of the business."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the business, its offerings, and unique selling points."
+        },
+        "address": {
+          "type": "string",
+          "description": "The physical street address of the business location."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "The geographic latitude coordinate of the business location, used for mapping."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "The geographic longitude coordinate of the business location, used for mapping."
+        },
+        "city": {
+          "type": "string",
+          "description": "The city where the business is located (e.g., Douala, Yaoundé, Ngaoundéré)."
+        },
+        "phone": {
+          "type": "string",
+          "description": "The primary contact phone number for the business."
+        },
+        "whatsappNumber": {
+          "type": "string",
+          "description": "The WhatsApp contact number for direct messaging with the business."
+        },
+        "websiteUrl": {
+          "type": "string",
+          "description": "The official website URL of the business.",
+          "format": "uri"
+        },
+        "hoursOfOperation": {
+          "type": "string",
+          "description": "A textual representation of the business's operating hours (e.g., 'Mon-Fri: 9 AM - 5 PM, Sat: 10 AM - 2 PM')."
+        },
+        "coverPhotoUrl": {
+          "type": "string",
+          "description": "URL to the business's main cover photo, typically displayed prominently on the detail page.",
+          "format": "uri"
+        },
+        "logoUrl": {
+          "type": "string",
+          "description": "URL to the business's official logo.",
+          "format": "uri"
+        },
+        "serviceNames": {
+          "type": "array",
+          "description": "A list of strings, each representing a distinct service offered by the business.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "eventTitles": {
+          "type": "array",
+          "description": "A list of strings, each representing the title or short description of an upcoming event hosted by the business.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hotDealTitles": {
+          "type": "array",
+          "description": "A list of strings, each representing the title or short description of a current hot deal offered by the business.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "averageRating": {
+          "type": "number",
+          "description": "The calculated average rating (1-5 stars) based on all user reviews for this business."
+        },
+        "totalReviews": {
+          "type": "number",
+          "description": "The total count of all reviews received by this business."
+        }
+      },
+      "required": [
+        "id",
+        "ownerId",
+        "categoryId",
+        "name",
+        "description",
+        "address",
+        "latitude",
+        "longitude",
+        "city",
+        "phone",
+        "averageRating",
+        "totalReviews"
+      ]
     },
     "Review": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Review",
       "type": "object",
+      "description": "Represents a user-generated review for a specific business, including a star rating, textual feedback, and optional photos.",
       "properties": {
-        "id": { "type": "string" },
-        "businessId": { "type": "string" },
-        "businessName": { "type": "string" },
-        "reviewerId": { "type": "string" },
-        "userName": { "type": "string" },
-        "rating": { "type": "number" },
-        "reviewText": { "type": "string" },
-        "photos": { "type": "array", "items": { "type": "string" } },
-        "createdDate": { "type": "string", "format": "date-time" }
-      }
-    },
-    "VerificationRequest": {
-      "title": "VerificationRequest",
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "businessId": { "type": "string" },
-        "businessName": { "type": "string" },
-        "userId": { "type": "string" },
-        "fullName": { "type": "string" },
-        "email": { "type": "string" },
-        "phone": { "type": "string" },
-        "status": { "type": "string", "enum": ["pending", "approved", "redundant"] },
-        "nui": { "type": "string" },
-        "rccm": { "type": "string" },
-        "idScan": { "type": "string" },
-        "timestamp": { "type": "string", "format": "date-time" }
-      }
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Review entity."
+        },
+        "businessId": {
+          "type": "string",
+          "description": "Reference to the Business that is being reviewed. (Relationship: Business 1:N Review)"
+        },
+        "reviewerId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who submitted this review. (Relationship: UserProfile 1:N Review)"
+        },
+        "rating": {
+          "type": "number",
+          "description": "The star rating given by the reviewer, an integer between 1 and 5."
+        },
+        "reviewText": {
+          "type": "string",
+          "description": "The textual content of the user's review."
+        },
+        "photoUrls": {
+          "type": "array",
+          "description": "A list of URLs to photos uploaded by the reviewer as part of this review.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ownerResponse": {
+          "type": "string",
+          "description": "The textual response provided by the business owner to this specific review."
+        },
+        "responseDateTime": {
+          "type": "string",
+          "description": "The date and time when the business owner submitted their response to the review.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "businessId",
+        "reviewerId",
+        "rating",
+        "reviewText"
+      ]
     }
   },
   "auth": {
-    "providers": ["email"]
+    "providers": [
+      "password",
+      "anonymous"
+    ]
   },
   "firestore": {
-    "/users/{userId}": {
-      "schema": { "$ref": "#/backend/entities/UserProfile" },
-      "description": "Institutional user profiles"
-    },
-    "/businesses/{businessId}": {
-      "schema": { "$ref": "#/backend/entities/Business" },
-      "description": "Verified and pending business listings"
-    },
-    "/reviews/{reviewId}": {
-      "schema": { "$ref": "#/backend/entities/Review" },
-      "description": "Public feedback logs"
-    },
-    "/verificationRequests/{requestId}": {
-      "schema": { "$ref": "#/backend/entities/VerificationRequest" },
-      "description": "Ownership claim documents"
-    }
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores individual user profiles. Access is restricted to the user whose ID matches the document ID (path-based ownership). This collection supports DBAC via the 'isBusinessOwner' flag. No denormalization for authorization needed beyond the inherent path-based ownership."
+        }
+      },
+      {
+        "path": "/categories/{categoryId}",
+        "definition": {
+          "entityName": "Category",
+          "schema": {
+            "$ref": "#/backend/entities/Category"
+          },
+          "description": "A global, publicly readable collection of predefined business categories. This collection is read-only for all authenticated users, facilitating QAPs for category browsing."
+        }
+      },
+      {
+        "path": "/businesses/{businessId}",
+        "definition": {
+          "entityName": "Business",
+          "schema": {
+            "$ref": "#/backend/entities/Business"
+          },
+          "description": "Main collection for all business listings. Publicly readable by all users to support global search and listing (QAPs). Write access is restricted to the user whose ID matches the 'ownerId' field within the document. This collection uses 'ownerId' for clear ownership and authorization."
+        }
+      },
+      {
+        "path": "/businesses/{businessId}/reviews/{reviewId}",
+        "definition": {
+          "entityName": "Review",
+          "schema": {
+            "$ref": "#/backend/entities/Review"
+          },
+          "description": "Reviews submitted for a specific business, nested as a subcollection. Publicly readable when viewing a business's details. Write access for the review text is restricted to the 'reviewerId'. Owner responses are permitted only for the 'businessOwnerId'. This collection includes a denormalized 'businessOwnerId' field (copied from the parent business) to ensure Authorization Independence for owner responses, eliminating 'get()' calls in security rules."
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure for Cameroon Zoom is designed to prioritize security, scalability, and debuggability, adhering strictly to the provided core design principles.\n\n**Authorization Independence via Denormalization:**\n\n1.  **`/businesses/{businessId}/reviews/{reviewId}`**: For reviews, the most critical aspect for authorization independence is allowing the business owner to respond to a review without relying on a `get()` operation to fetch the parent `Business` document. To achieve this, each `Review` document, in addition to its `reviewerId`, will include a denormalized `businessOwnerId` field. This denormalized field will store the UID of the user who owns the associated business. This design allows Firestore security rules to directly check `request.auth.uid == resource.data.businessOwnerId` when evaluating write access for an owner's response, completely eliminating the need for `get()` calls and ensuring atomic and easily debuggable authorization logic. This directly addresses Mandate A.\n\n2.  **`/businesses/{businessId}`**: For the `Business` collection, the `ownerId` field is a primary attribute, not a denormalized one for authorization of subcollections. Its presence directly enables `request.auth.uid == resource.data.ownerId` checks for business modification, ensuring authorization independence for the business document itself.\n\n**Support for Querying All Public Data (QAPs):**\n\n1.  **`/businesses/{businessId}`**: The `Business` collection is designed as a top-level collection. This is crucial for QAPs, as it allows for efficient and secure `list` queries across all businesses, enabling features like searching by name, category, and displaying nearby businesses on a map. If businesses were nested under users (e.g., `/users/{userId}/businesses/{businessId}`), global search and filtering would be impractical and potentially insecure without complex and inefficient rules. By keeping `Business` at the top level and including `ownerId`, all users can read, while only the specific owner can write, simplifying QAPs.\n\n2.  **`/categories/{categoryId}`**: This collection is also top-level and public read-only, making it simple to list all available categories without complex rules or filters.\n\n3.  **`/businesses/{businessId}/reviews/{reviewId}`**: Reviews are nested under businesses, which naturally groups them for display on a business's detail page. Since the `businessOwnerId` is denormalized, rules can ensure that only the reviewer or the business owner can write, while everyone else can read. This allows for efficient querying of all reviews for a specific business.\n\n**Structural Segregation and Access Modeling:**\n\n*   **`/users/{userId}`**: User profiles are stored in a top-level collection, adhering to Path-Based ownership. Access is strictly private, with only `request.auth.uid` matching `{userId}` allowed to read or write, ensuring clear intent and security.\n*   **Global Roles (DBAC)**: The `isBusinessOwner` flag is stored directly within the `UserProfile` document. This allows authentication rules to check user roles based on their own profile data (`resource.data.isBusinessOwner`) without needing custom claims or external role collections, fulfilling the DBAC principle.\n*   **Radical Consistency**: Wildcards like `{userId}`, `{businessId}`, `{categoryId}`, and `{reviewId}` are used consistently and semantically throughout the paths to enhance clarity and predictability for rule writing and debugging."
   }
 }

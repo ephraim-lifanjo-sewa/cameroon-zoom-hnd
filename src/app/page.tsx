@@ -1,5 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
-
 
 import { Navbar } from '@/components/layout/Navbar';
 import { CategoryScroll } from '@/components/business/CategoryScroll';
@@ -16,7 +16,6 @@ import { Enterprise } from './lib/types';
 import { EnterpriseCard } from '@/components/enterprise/EnterpriseCard';
 import SearchInput from '@/components/search/SearchInput';
 
-export const dynamic = "force-static";
 export default function Home() {
   const { t } = useLanguage();
   const db = useFirestore();
@@ -79,7 +78,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="flex-grow container mx-auto px-4 py-16 space-y-24 max-w-7xl">
+      <div className="grow container mx-auto px-4 py-16 space-y-24 max-w-7xl">
         <CategoryScroll />
         
         <section className="space-y-10">

@@ -1,4 +1,4 @@
-
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import Link from 'next/link';
@@ -47,57 +47,62 @@ export function Navbar() {
   if (!isMounted) return null;
 
   const isAdmin = user?.email?.toLowerCase() === 'admin@gmail.com' || profile?.isAdmin;
-  
   const isHomePage = pathname === '/';
   const isSearchPage = pathname === '/search';
 
+  // Use real user name first letter or fallback
+  const avatarLetter = profile?.fullName?.[0]?.toUpperCase() || user?.displayName?.[0]?.toUpperCase() || 'M';
+  const displayName = profile?.fullName || user?.displayName || 'Member';
+
   return (
-    <nav className="bg-white border-b border-[#E5E5E1] h-[72px] flex items-center w-full relative z-50">
+    <nav className="bg-white border-b border-[#E5E5E1] h-18 flex items-center w-full relative z-50">
       <div className="container mx-auto px-4 flex items-center justify-between gap-6 max-w-7xl">
         <Link href="/" className="flex items-center shrink-0">
-          <span className="font-black text-2xl tracking-tighter uppercase text-primary">Cameroon</span>
-          <span className="font-black text-2xl tracking-tighter uppercase text-secondary ml-1">Zoom</span>
+          <span className="font-black text-xr tracking-tighter uppercase text-primary">Cameroon</span>
+          <span className="font-black text-xr tracking-tighter uppercase text-secondary ml-1">Zoom</span>
         </Link>
 
-        <div className="flex-grow max-w-md hidden md:block">
-          {!isHomePage && !isSearchPage ? (
+        {/* Search Bar */}
+        <div className="grow max-w-md hidden md:block">
+          {!isHomePage && !isSearchPage && (
             <form onSubmit={onHeaderSearch} className="relative flex items-center bg-muted/30 rounded-xl border border-[#E5E5E1] p-0.5 focus-within:border-primary transition-all">
-              <Input 
+              <Input
                 value={headerSearch}
                 onChange={e => setHeaderSearch(e.target.value)}
                 placeholder="Search..." 
-                className="h-10 bg-transparent border-none shadow-none focus-visible:ring-0 text-xs font-bold px-4" 
+                className="h-10 bg-transparent border-none shadow-none focus-visible:ring-0 text-xs font-bold px-4"
               />
               <Button type="submit" size="icon" variant="ghost" className="h-9 w-9 text-secondary hover:text-primary shrink-0">
                 <Search className="w-4 h-4" />
               </Button>
             </form>
-          ) : null}
+          )}
         </div>
 
+        {/* Right Side */}
         <div className="flex items-center gap-2">
           {isHomePage && (
             <Button variant="ghost" size="icon" onClick={() => router.push('/search')} className="text-secondary hover:text-primary">
               <Search className="w-5 h-5" />
             </Button>
           )}
-          
+
           {user ? (
             <Sheet>
               <SheetTrigger asChild>
                 <button className="flex items-center gap-2 hover:opacity-80 transition-all focus:outline-none">
                   <Avatar className="h-10 w-10 border border-[#E5E5E1] rounded-lg">
                     <AvatarImage src={profile?.profilePhoto || undefined} className="object-cover" />
-                    <AvatarFallback className="font-black bg-primary text-white">{profile?.fullName?.[0] || 'M'}</AvatarFallback>
+                    <AvatarFallback className="font-black bg-primary text-white">{avatarLetter}</AvatarFallback>
                   </Avatar>
                 </button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] p-0 flex flex-col border-l border-[#E5E5E1]">
+              <SheetContent side="right" className="w-75 p-0 flex flex-col border-l border-[#E5E5E1]">
                 <SheetHeader className="p-8 bg-muted/5 border-b border-[#E5E5E1]">
-                  <SheetTitle className="text-lg font-black uppercase text-secondary truncate">{profile?.fullName || 'Member'}</SheetTitle>
+                  <SheetTitle className="text-lg font-black uppercase text-secondary truncate">{displayName}</SheetTitle>
                   <p className="text-[10px] font-bold text-muted-foreground uppercase">{profile?.city || 'Douala'}, CM</p>
                 </SheetHeader>
-                <div className="flex-grow p-4 space-y-1">
+                <div className="grow p-4 space-y-1">
                   <Link href="/profile" className="flex items-center gap-4 h-12 px-4 font-bold text-[11px] uppercase tracking-widest hover:bg-muted/50 rounded-xl text-secondary">
                     <User className="w-4 h-4 text-primary" /> My Profile
                   </Link>
