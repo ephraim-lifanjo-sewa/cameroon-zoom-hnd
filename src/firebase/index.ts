@@ -5,22 +5,20 @@ import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import {
   getAuth,
   createUserWithEmailAndPassword,
-  updateProfile,
   signInWithEmailAndPassword,
-  UserCredential,
   signOut,
-  onAuthStateChanged,
-  User
+  updateProfile,
+  UserCredential,
+  User,
+  onAuthStateChanged
 } from 'firebase/auth';
+
 import {
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
   Firestore,
-  getFirestore,
-  doc,
-  setDoc,
-  serverTimestamp
+  getFirestore
 } from 'firebase/firestore';
 
 import { useEffect, useState } from 'react';
@@ -28,7 +26,9 @@ import { useEffect, useState } from 'react';
 let app: FirebaseApp;
 let firestore: Firestore;
 
-/* -------------------- INIT -------------------- */
+/* ===========================
+   INIT FIREBASE
+=========================== */
 
 export function initializeFirebase() {
   const apps = getApps();
@@ -36,11 +36,7 @@ export function initializeFirebase() {
   if (apps.length > 0) {
     app = apps[0];
   } else {
-    try {
-      app = initializeApp(firebaseConfig);
-    } catch {
-      app = initializeApp();
-    }
+    app = initializeApp(firebaseConfig);
   }
 
   return getSdks(app);
@@ -55,8 +51,8 @@ export function getSdks(firebaseApp: FirebaseApp, existingDb?: Firestore) {
     try {
       db = initializeFirestore(firebaseApp, {
         localCache: persistentLocalCache({
-          tabManager: persistentMultipleTabManager(),
-        }),
+          tabManager: persistentMultipleTabManager()
+        })
       });
     } catch {
       db = getFirestore(firebaseApp);
@@ -66,26 +62,64 @@ export function getSdks(firebaseApp: FirebaseApp, existingDb?: Firestore) {
   return {
     firebaseApp,
     auth: getAuth(firebaseApp),
-    firestore: db,
+    firestore: db
   };
 }
 
-/* -------------------- HOOKS -------------------- */
+const { auth, firestore: db } = initializeFirebase();
 
-export function useAuth() {
-  const { auth } = initializeFirebase();
-  return auth;
+export { auth, db };
+
+
+
+/* ===========================
+   AUTH FUNCTIONS
+=========================== */
+
+export async function initiateEmailSignUp(
+  email: string,
+  password: string,
+  displayName?: string
+): Promise<UserCredential> {
+  const cred = await createUserWithEmailAndPassword(auth, email, password);
+
+  if (displayName && cred.user) {
+    await updateProfile(cred.user, {
+      displayName
+    });
+  }
+
+  return cred;
 }
 
-export function useFirestore() {
-  const { firestore } = initializeFirebase();
-  return firestore;
+
+
+export async function initiateEmailLogin(
+  email: string,
+  password: string
+): Promise<UserCredential> {
+  return signInWithEmailAndPassword(auth, email, password);
 }
+
+
+/* alias for login page */
+export const initiateEmailSignIn = initiateEmailLogin;
+
+
+
+export async function logoutUser() {
+  return signOut(auth);
+}
+
+
+
+/* ===========================
+   USER HOOK
+=========================== */
 
 export function useUser() {
-  const auth = useAuth();
-  const [user, setUser] = useState<User | null>(auth.currentUser);
-  const [loading, setLoading] = useState(!auth.currentUser);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
@@ -94,66 +128,50 @@ export function useUser() {
     });
 
     return unsub;
-  }, [auth]);
+  }, []);
 
   return { user, loading };
 }
 
-/* -------------------- SIGN UP -------------------- */
 
-export async function initiateEmailSignUp(
-  email: string,
-  password: string,
-  data?: {
-    name?: string;
-    photoURL?: string;
-  }
-): Promise<UserCredential> {
-  const { auth, firestore } = initializeFirebase();
 
-  const cred = await createUserWithEmailAndPassword(auth, email, password);
+/* ===========================
+   AUTH HOOK
+=========================== */
 
-  if (data?.name || data?.photoURL) {
-    await updateProfile(cred.user, {
-      displayName: data?.name,
-      photoURL: data?.photoURL,
-    });
-  }
+export function useAuth() {
+  const { user, loading } = useUser();
 
-  await setDoc(doc(firestore, 'users', cred.user.uid), {
-    email: cred.user.email,
-    name: data?.name || '',
-    photoURL: data?.photoURL || '',
-    createdAt: serverTimestamp(),
-  });
-
-  return cred;
+  return {
+    user,
+    loading,
+    login: initiateEmailLogin,
+    signin: initiateEmailSignIn,
+    signup: initiateEmailSignUp,
+    logout: logoutUser
+  };
 }
 
-/* -------------------- SIGN IN -------------------- */
 
-export async function initiateEmailSignIn(
-  email: string,
-  password: string
-): Promise<UserCredential> {
-  const { auth } = initializeFirebase();
-  return signInWithEmailAndPassword(auth, email, password);
+
+/* ===========================
+   FIRESTORE
+=========================== */
+
+export function useFirestore() {
+  return db;
 }
 
-/* -------------------- LOGOUT -------------------- */
 
-export async function logout() {
-  const { auth } = initializeFirebase();
-  return signOut(auth);
-}
 
-/* -------------------- EXPORTS -------------------- */
+/* ===========================
+   EXPORT OTHER FILES
+=========================== */
 
 export * from './provider';
 export * from './client-provider';
 export * from './firestore/use-collection';
 export * from './firestore/use-doc';
 export * from './non-blocking-updates';
-export * from './non-blocking-login';
 export * from './errors';
 export * from './error-emitter';

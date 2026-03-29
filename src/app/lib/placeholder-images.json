@@ -4,25 +4,25 @@
     {
       "id": "default-building",
       "description": "Institutional default building silhouette",
-      "imageUrl": "/public/images/Douala-City-searchcameroon-270x400.jpg",
+      "imageUrl": "/images/Douala-City-searchcameroon-270x400.jpg",
       "imageHint": "Institutional building"
     },
     {
       "id": "hero-reunification",
       "description": "Cameroon Monument - Institutional Landmark",
-      "imageUrl": "/public/images/Yaounde-city-seachcameroon-214x300-270x400.jpg",
+      "imageUrl": "/images/university/banner1.jpg",
       "imageHint": "Modern architecture"
     },
     {
       "id": "hero-douala-port",
       "description": "Port of Douala - Economic Hub",
-      "imageUrl": "/public/images/img-1.jpg",
+      "imageUrl": "/images/coiffure/banner3.jpg",
       "imageHint": "Port infrastructure"
     },
     {
       "id": "hero-yaounde-admin",
       "description": "Yaoundé Administrative Center",
-      "imageUrl": "/public/images/industry.jpg",
+      "imageUrl": "/images/university/pub.jpg",
       "imageHint": "City buildings"
     }
   ]

@@ -7,50 +7,66 @@ service cloud.firestore {
      * Simplified for professional directory governance.
      */
 
+    // Helper: is user signed in
     function isSignedIn() {
       return request.auth != null;
     }
 
+    // Helper: is current user the owner of the resource
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    // Helper: is current user admin
     function isAdmin() {
-      return isSignedIn() && (request.auth.token.email == 'admin@gmail.com' || 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
+      return isSignedIn() && (
+        request.auth.token.email == 'admin@gmail.com' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true)
+      );
     }
 
+    // SETTINGS COLLECTION
     match /settings/{docId} {
       allow read: if true;
-      allow write: if isAdmin(); 
+      allow write: if isAdmin();
     }
 
+    // USERS COLLECTION
     match /users/{userId} {
-      allow read, list: if isSignedIn(); // Allow listing for admin checks and basic profile viewing
-      allow create: if true;
+      allow read, list: if isSignedIn(); // authenticated users can read/list
+      allow create: if true; // anyone can create
       allow update: if isOwner(userId) || isAdmin();
     }
 
+    // BUSINESSES COLLECTION
     match /businesses/{businessId} {
       allow read: if true;
       allow create: if isSignedIn();
-      allow update: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow update: if isSignedIn() && (
+        (resource.data.ownerId == request.auth.uid) || isAdmin()
+      );
       allow delete: if isAdmin();
     }
 
+    // REVIEWS COLLECTION
     match /reviews/{reviewId} {
       allow read: if true;
       allow create: if isSignedIn();
-      allow update: if isSignedIn() && (resource.data.reviewerId == request.auth.uid || isAdmin());
+      allow update: if isSignedIn() && (
+        resource.data.reviewerId == request.auth.uid || isAdmin()
+      );
       allow delete: if isAdmin();
     }
 
+    // PHOTOS COLLECTION
     match /photos/{photoId} {
       allow read: if true;
       allow create: if isSignedIn();
       allow update, delete: if isAdmin();
     }
-    
+
+    // VERIFICATION REQUESTS
     match /verificationRequests/{requestId} {
       allow read, list: if isAdmin();
       allow create: if isSignedIn();

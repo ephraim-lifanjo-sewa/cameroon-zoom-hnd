@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -69,7 +70,7 @@ export default function HeroSlideshow() {
       <div className="absolute inset-0 flex transition-transform duration-700 ease-in-out"
            style={{ transform: `translateX(-${active * 100}%)` }}>
         {slides.map((slide, i) => (
-          <div key={i} className="flex-shrink-0 w-full h-full relative">
+          <div key={i} className="shrink-0 w-full h-full relative">
             <img src={slide.img} alt={slide.title} className="w-full h-full object-cover"/>
             <div className="absolute inset-0 bg-black/50" />
           </div>

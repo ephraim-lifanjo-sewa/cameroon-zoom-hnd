@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "cameroon-zoom-hnd"
-  }
+    "default": "cameroon-zoom-hnd",
+    "cameroonzoom-hnd": "studio-393888538-a5006"
+  },
+  "targets": {},
+  "etags": {}
 }

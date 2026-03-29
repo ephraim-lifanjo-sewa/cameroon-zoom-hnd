@@ -3,61 +3,61 @@
     {
       "id": "hero-reunification",
       "description": "Cameroon Monument - Institutional Landmark",
-      "imageUrl": "/public/images/528824237_122242860008078828_2277848991175420280_n.jpg",
+      "imageUrl": "/images/528824237_122242860008078828_2277848991175420280_n.jpg",
       "imageHint": "Modern architecture"
     },
     {
       "id": "hero-yaounde",
       "description": "Yaoundé Administrative Hub - Urban View",
-      "imageUrl": "/public/images/stark.jpg",
+      "imageUrl": "/images/stark.jpg",
       "imageHint": "City buildings"
     },
     {
       "id": "hero-douala",
       "description": "Douala Economic Energy - Business District",
-      "imageUrl": "/public/images/Douala-City-searchcameroon-270x400.jpg",
+      "imageUrl": "/images/Douala-City-searchcameroon-270x400.jpg",
       "imageHint": "Modern office"
     },
     {
       "id": "hero-ngaoundere",
       "description": "Ngaoundéré Plateau - Northern Landscape",
-      "imageUrl": "/public/images/ngaoundere.jpg",
+      "imageUrl": "/images/ngaoundere.jpg",
       "imageHint": "African landscape"
     },
     {
       "id": "town-dla",
       "description": "Douala Hub Thumbnail",
-      "imageUrl": "/public/images/banner1.jpg",
+      "imageUrl": "/images/banner1.jpg",
       "imageHint": "Busy city"
     },
     {
       "id": "town-yde",
       "description": "Yaoundé Hub Thumbnail",
-      "imageUrl": "/public/images/mac1.jpg",
+      "imageUrl": "/images/mac1.jpg",
       "imageHint": "City night"
     },
     {
       "id": "town-ngr",
       "description": "Ngaoundéré Hub Thumbnail",
-      "imageUrl": "/public/images/growbg.jpg",
+      "imageUrl": "/images/growbg.jpg",
       "imageHint": "African nature"
     },
     {
       "id": "biz-edu",
       "description": "Institutional Education Center",
-      "imageUrl": "/public/images/hotels/hilton/hilton2.jpg",
+      "imageUrl": "/images/hotels/hilton/hilton2.jpg",
       "imageHint": "Campus building"
     },
     {
       "id": "biz-telecom",
       "description": "Telecom Infrastructure",
-      "imageUrl": "/public/images/coiffure/creator3/coiffure1.jpg",
+      "imageUrl": "/images/coiffure/creator3/coiffure1.jpg",
       "imageHint": "Tech workspace"
     },
     {
       "id": "biz-finance",
       "description": "Banking & Finance Institution",
-      "imageUrl": "/public/images/university/banner5.jpg",
+      "imageUrl": "/images/university/banner5.jpg",
       "imageHint": "Bank building"
     }
   ]

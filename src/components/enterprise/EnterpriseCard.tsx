@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { Enterprise } from '@/app/lib/types';
@@ -29,8 +30,8 @@ export function EnterpriseCard({ enterprise, isHighlighted, onMouseEnter, onMous
   return (
     <div 
       className={cn(
-        "group bg-white border border-[#E5E5E1] cursor-pointer flex flex-col transition-all overflow-hidden rounded-2xl w-full shadow-sm hover:shadow-xl",
-        isHighlighted && "ring-4 ring-primary/5 shadow-2xl scale-[1.02] border-primary/30"
+        "group bg-white border border-[#E5E5E1] cursor-pointer flex flex-col transition-all  overflow-hidden rounded-2xl w-full shadow-sm hover:shadow-xl",
+        isHighlighted && "ring-4 ring-primary/5 shadow-xl scale-[1.02] border-primary/30"
       )}
       onClick={() => router.push(`/business/${enterprise.id}`)}
       onMouseEnter={onMouseEnter}
@@ -38,10 +39,10 @@ export function EnterpriseCard({ enterprise, isHighlighted, onMouseEnter, onMous
     >
       <div className="relative w-full aspect-video bg-muted flex items-center justify-center overflow-hidden border-b border-[#E5E5E1]">
         {thumbnail ? (
-          <Image src={thumbnail} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          <img src={thumbnail} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
-          <div className="flex flex-col items-center gap-2 opacity-10">
-                <img src="/public/images/hotels/chambre2.jpg" alt="background business"/>
+          <div className="flex flex-col items-center gap-2 text-center">
+                <img src="/images/enteprise cards.png" alt="background business"/>
           </div>
         )}
         {enterprise.isVerified && (
