@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -10,12 +9,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { useRouter, usePathname } from 'next/navigation';
 import { doc } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
+import { getAuth, signOut as firebaseSignOut } from 'firebase/auth';
 import { Input } from '@/components/ui/input';
 
 export function Navbar() {
   const { user } = useUser();
-  const auth = useAuth();
+  const auth = useAuth() || getAuth();
   const db = useFirestore();
   const router = useRouter();
   const pathname = usePathname();
@@ -29,25 +28,20 @@ export function Navbar() {
 
   const handleLogout = async () => {
     if (auth) {
-      await signOut(auth);
+      await firebaseSignOut(auth);
       router.push('/login');
     }
   };
 
   const onHeaderSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (headerSearch.trim()) {
-      router.push(`/search?q=${encodeURIComponent(headerSearch)}`);
-      setHeaderSearch('');
-    } else {
-      router.push('/search');
-    }
+    router.push(headerSearch.trim() ? `/search?q=${encodeURIComponent(headerSearch)}` : '/search');
+    setHeaderSearch('');
   };
 
   if (!isMounted) return null;
 
   const isAdmin = user?.email?.toLowerCase() === 'admin@gmail.com' || profile?.isAdmin;
-  
   const isHomePage = pathname === '/';
   const isSearchPage = pathname === '/search';
 
@@ -60,7 +54,7 @@ export function Navbar() {
         </Link>
 
         <div className="flex-grow max-w-md hidden md:block">
-          {!isHomePage && !isSearchPage ? (
+          {!isHomePage && !isSearchPage && (
             <form onSubmit={onHeaderSearch} className="relative flex items-center bg-muted/30 rounded-xl border border-[#E5E5E1] p-0.5 focus-within:border-primary transition-all">
               <Input 
                 value={headerSearch}
@@ -72,7 +66,7 @@ export function Navbar() {
                 <Search className="w-4 h-4" />
               </Button>
             </form>
-          ) : null}
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -81,7 +75,7 @@ export function Navbar() {
               <Search className="w-5 h-5" />
             </Button>
           )}
-          
+
           {user ? (
             <Sheet>
               <SheetTrigger asChild>
@@ -94,19 +88,23 @@ export function Navbar() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] p-0 flex flex-col border-l border-[#E5E5E1]">
                 <SheetHeader className="p-8 bg-muted/5 border-b border-[#E5E5E1]">
-                  <SheetTitle className="text-lg font-black uppercase text-secondary truncate">{profile?.fullName || 'Member'}</SheetTitle>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase">{profile?.city || 'Douala'}, CM</p>
+                  <SheetTitle className="text-lg font-black uppercase text-secondary truncate">{profile?.fullName || ''}</SheetTitle>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase">{profile?.city || ''}</p>
                 </SheetHeader>
                 <div className="flex-grow p-4 space-y-1">
-                  <Link href="/profile" className="flex items-center gap-4 h-12 px-4 font-bold text-[11px] uppercase tracking-widest hover:bg-muted/50 rounded-xl text-secondary">
-                    <User className="w-4 h-4 text-primary" /> My Profile
-                  </Link>
-                  <Link href="/profile?tab=management" className="flex items-center gap-4 h-12 px-4 font-bold text-[11px] uppercase tracking-widest hover:bg-muted/50 rounded-xl text-secondary">
-                    <LayoutDashboard className="w-4 h-4 text-primary" /> My Work List
-                  </Link>
-                  <Link href="/add-business" className="flex items-center gap-4 h-12 px-4 font-bold text-[11px] uppercase tracking-widest hover:bg-muted/50 rounded-xl text-secondary">
-                    <Plus className="w-4 h-4 text-primary" /> Add My Work
-                  </Link>
+                  {!isAdmin && (
+                    <>
+                      <Link href="/profile" className="flex items-center gap-4 h-12 px-4 font-bold text-[11px] uppercase tracking-widest hover:bg-muted/50 rounded-xl text-secondary">
+                        <User className="w-4 h-4 text-primary" /> My Profile
+                      </Link>
+                      <Link href="/profile?tab=management" className="flex items-center gap-4 h-12 px-4 font-bold text-[11px] uppercase tracking-widest hover:bg-muted/50 rounded-xl text-secondary">
+                        <LayoutDashboard className="w-4 h-4 text-primary" /> My Work List
+                      </Link>
+                      <Link href="/add-business" className="flex items-center gap-4 h-12 px-4 font-bold text-[11px] uppercase tracking-widest hover:bg-muted/50 rounded-xl text-secondary">
+                        <Plus className="w-4 h-4 text-primary" /> Add My Work
+                      </Link>
+                    </>
+                  )}
                   {isAdmin && (
                     <Link href="/admin" className="flex items-center gap-4 h-12 px-4 font-bold text-[11px] uppercase tracking-widest text-primary hover:bg-muted/50 rounded-xl">
                       <Shield className="w-4 h-4" /> Admin Hub
