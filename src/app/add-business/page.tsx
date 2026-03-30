@@ -119,8 +119,8 @@ export default function BusinessPage() {
         website: business.website || "",
         logo: business.logo || "",
         coverPhoto: business.coverPhoto || "",
-        latitude: business.latitude || 4.0511,
-        longitude: business.longitude || 9.7679,
+        latitude: business.latitude || 6.0511,
+        longitude: business.longitude || 8.7679,
       });
       setRegistryStep("form");
     }
