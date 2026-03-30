@@ -19,7 +19,7 @@ export default function AuthRedirectPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <Loader2 className="animate-spin text-primary w-10 h-10" />
-      <p className="ml-3 font-bold uppercase text-xs tracking-widest">Loading...</p>
+      <p className="ml-3 font-bold uppercase text-xs tracking-widest">Loading it...</p>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from 'react';
@@ -138,11 +137,11 @@ export function AddBusinessModal({ open, onOpenChange }: { open: boolean, onOpen
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-150 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-black">List Your Business</DialogTitle>
           <DialogDescription>
-            Join Cameroon&apos;s fastest growing business directory.
+            Join Cameroon's fastest growing business directory.
           </DialogDescription>
         </DialogHeader>
 
