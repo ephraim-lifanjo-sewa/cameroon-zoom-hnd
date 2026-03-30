@@ -32,13 +32,6 @@ export default function LoginPage() {
     defaultValues: { email: "", password: "" },
   });
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) router.push("/"); // redirect if already logged in
-    });
-    return () => unsubscribe();
-  }, [router]);
-
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     setIsSubmitting(true);
     try {
@@ -103,14 +96,6 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Illustration Mobile */}
-      <div className="mt-10 w-full max-w-xs">
-        <img
-          src="https://s3-media0.fl.yelpcdn.com/assets/2/www/img/7922e77f338d/signup/signup_illustration.png"
-          alt="Login Illustration"
-          className="w-full object-contain"
-        />
-      </div>
     </div>
   );
 }

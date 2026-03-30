@@ -42,10 +42,6 @@ export default function AdminPage() {
   const { data: allBiz } = useCollection(bizQuery);
   const { data: verifyRequests } = useCollection(verifyQuery);
 
-  useEffect(() => { 
-    if (isAuthorized === false) router.push('/'); 
-  }, [isAuthorized, router]);
-
   useEffect(() => {
     setSelectedIds([]);
   }, [activeView]);
