@@ -1,13 +1,14 @@
+
 "use client";
 
 import { useFirestore, useUser, useCollection, useMemoFirebase, useDoc, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { Navbar } from '@/components/layout/Navbar';
-import { collection, query, limit, doc } from 'firebase/firestore';
+import { collection, query, limit, doc, where, getDocs } from 'firebase/firestore';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Eye } from 'lucide-react';
+import { Loader2, CheckCircle, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -18,7 +19,7 @@ export default function AdminPage() {
   const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
-
+  
   const [activeView, setActiveView] = useState<'names' | 'businesses' | 'claims' | 'clean'>('names');
   const [selectedClaim, setSelectedClaim] = useState<any>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -28,13 +29,11 @@ export default function AdminPage() {
   const userDocRef = useMemoFirebase(() => (db && user) ? doc(db, 'users', user.uid) : null, [db, user]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(userDocRef);
 
-  // Only admin@gmail.com or profile.isAdmin === true
   const isAuthorized = useMemo(() => {
-    if (isUserLoading || isProfileLoading) return null;
+    if (isUserLoading || isProfileLoading) return null; 
     return user?.email?.toLowerCase() === 'admin@gmail.com' || profile?.isAdmin === true;
   }, [user, profile, isUserLoading, isProfileLoading]);
 
-  // Firestore queries
   const usersQuery = useMemoFirebase(() => isAuthorized ? query(collection(db!, 'users'), limit(100)) : null, [db, isAuthorized]);
   const bizQuery = useMemoFirebase(() => isAuthorized ? query(collection(db!, 'businesses'), limit(200)) : null, [db, isAuthorized]);
   const verifyQuery = useMemoFirebase(() => isAuthorized ? query(collection(db!, 'verificationRequests'), limit(50)) : null, [db, isAuthorized]);
@@ -43,79 +42,71 @@ export default function AdminPage() {
   const { data: allBiz } = useCollection(bizQuery);
   const { data: verifyRequests } = useCollection(verifyQuery);
 
-  // Redirect unauthorized users
   useEffect(() => { 
     if (isAuthorized === false) router.push('/'); 
   }, [isAuthorized, router]);
 
-  useEffect(() => setSelectedIds([]), [activeView]);
+  useEffect(() => {
+    setSelectedIds([]);
+  }, [activeView]);
 
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
-  // Bulk delete
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = () => {
     if (!db || selectedIds.length === 0) return;
     if (!confirm("Remove selected items?")) return;
-
+    
     const collectionName = activeView === 'names' ? 'users' : activeView === 'businesses' ? 'businesses' : 'verificationRequests';
-
-    try {
-      for (const id of selectedIds) {
-        await deleteDocumentNonBlocking(doc(db, collectionName, id));
-      }
-      toast({ title: "Removed items successfully" });
-      setSelectedIds([]);
-    } catch {
-      toast({ title: "Failed to remove items", variant: "destructive" });
-    }
+    
+    selectedIds.forEach(id => {
+      deleteDocumentNonBlocking(doc(db, collectionName, id));
+    });
+    
+    toast({ title: "Removed items" });
+    setSelectedIds([]);
   };
 
-  // Approve verification claim
   const handleApproveClaim = async () => {
     if (!db || !selectedClaim) return;
     setIsProcessing(true);
-
     try {
-      // Update business verification
-      await updateDocumentNonBlocking(doc(db, 'businesses', selectedClaim.businessId), {
+      updateDocumentNonBlocking(doc(db, 'businesses', selectedClaim.businessId), {
         isVerified: true,
         ownerId: selectedClaim.userId,
         verifiedAt: new Date().toISOString()
       });
 
-      // Update claim status
-      await updateDocumentNonBlocking(doc(db, 'verificationRequests', selectedClaim.id), {
+      updateDocumentNonBlocking(doc(db, 'verificationRequests', selectedClaim.id), {
         status: 'approved',
         processedAt: new Date().toISOString()
       });
 
-      toast({ title: "Claim approved successfully" });
+      toast({ title: "Approved Successfully" });
       setSelectedClaim(null);
-    } catch {
-      toast({ title: "Approval failed", variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Failed", variant: "destructive" });
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Loading state
-  if (isAuthorized === null) return (
-    <div className="h-screen flex flex-col items-center justify-center bg-white gap-4">
-      <Loader2 className="animate-spin text-primary w-10 h-10" />
-      <p className="font-black uppercase text-[10px] tracking-widest text-muted-foreground">Loading...</p>
-    </div>
-  );
+  if (isAuthorized === null) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center bg-white gap-4">
+        <Loader2 className="animate-spin text-primary w-10 h-10" />
+        <p className="font-black uppercase text-[10px] tracking-widest text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   if (!isAuthorized) return null;
 
   return (
     <div className="min-h-screen bg-white font-body text-secondary pb-24">
       <Navbar />
-
       <div className="container mx-auto px-4 py-8 max-w-5xl">
-        {/* Header */}
         <header className="flex justify-between items-center mb-8 border-b border-[#E5E5E1] pb-6">
           <h1 className="text-xl font-black uppercase tracking-tight">Admin Dashboard</h1>
           {selectedIds.length > 0 && (
@@ -125,76 +116,55 @@ export default function AdminPage() {
           )}
         </header>
 
-        {/* Tabs */}
         <div className="flex gap-0 mb-8 border border-[#E5E5E1] rounded-xl overflow-hidden shadow-sm">
-          {['names', 'businesses', 'claims', 'clean'].map((view) => (
-            <button
-              key={view}
-              onClick={() => setActiveView(view as any)}
+          {[
+            { id: 'names', label: 'People' },
+            { id: 'businesses', label: 'Businesses' },
+            { id: 'claims', label: 'Claims' },
+            { id: 'clean', label: 'Maintenance' }
+          ].map(v => (
+            <button 
+              key={v.id} 
+              onClick={() => setActiveView(v.id as any)} 
               className={cn(
-                "flex-1 h-12 text-[10px] font-black uppercase border-r border-[#E5E5E1] last:border-r-0 transition-all",
-                activeView === view ? "bg-secondary text-white" : "hover:bg-muted bg-white"
+                "flex-1 h-12 text-[10px] font-black uppercase border-r border-[#E5E5E1] last:border-r-0 transition-all", 
+                activeView === v.id ? "bg-secondary text-white" : "hover:bg-muted bg-white"
               )}
             >
-              {view.charAt(0).toUpperCase() + view.slice(1)}
+              {v.label}
             </button>
           ))}
         </div>
 
-        {/* Views */}
         <div className="border border-[#E5E5E1] overflow-hidden rounded-xl bg-white shadow-sm">
-
-          {/* Users */}
           {activeView === 'names' && (
             <div className="p-6 space-y-4">
               {allUsers?.map(u => (
                 <div key={u.id} className="flex items-center justify-between p-4 border border-[#E5E5E1] rounded-xl">
                   <div className="flex items-center gap-4">
                     <Checkbox checked={selectedIds.includes(u.id)} onCheckedChange={() => toggleSelect(u.id)} />
-                    <div>
-                      <p className="font-bold uppercase text-xs">{u.fullName}</p>
-                      <p className="text-[10px] opacity-50">{u.email}</p>
-                    </div>
+                    <div><p className="font-bold uppercase text-xs">{u.fullName}</p><p className="text-[10px] opacity-50">{u.email}</p></div>
                   </div>
-                  <button onClick={async () => {
-                    try {
-                      await deleteDocumentNonBlocking(doc(db!, 'users', u.id));
-                      toast({ title: "User removed" });
-                    } catch {
-                      toast({ title: "Failed to remove user", variant: "destructive" });
-                    }
-                  }} className="text-red-600 font-black uppercase text-[9px] hover:underline">Remove</button>
+                  <button onClick={() => deleteDocumentNonBlocking(doc(db!, 'users', u.id))} className="text-red-600 font-black uppercase text-[9px] hover:underline">Remove</button>
                 </div>
               ))}
             </div>
           )}
 
-          {/* Businesses */}
           {activeView === 'businesses' && (
             <div className="p-6 space-y-4">
               {allBiz?.map(b => (
                 <div key={b.id} className="flex items-center justify-between p-4 border border-[#E5E5E1] rounded-xl">
                   <div className="flex items-center gap-4">
                     <Checkbox checked={selectedIds.includes(b.id)} onCheckedChange={() => toggleSelect(b.id)} />
-                    <div>
-                      <p className="font-bold uppercase text-xs">{b.businessName || b.name}</p>
-                      <p className="text-[10px] opacity-50 uppercase">{b.city}</p>
-                    </div>
+                    <div><p className="font-bold uppercase text-xs">{b.businessName || b.name}</p><p className="text-[10px] opacity-50 uppercase">{b.city}</p></div>
                   </div>
-                  <button onClick={async () => {
-                    try {
-                      await deleteDocumentNonBlocking(doc(db!, 'businesses', b.id));
-                      toast({ title: "Business removed" });
-                    } catch {
-                      toast({ title: "Failed to remove business", variant: "destructive" });
-                    }
-                  }} className="text-red-600 font-black uppercase text-[9px] hover:underline">Remove</button>
+                  <button onClick={() => deleteDocumentNonBlocking(doc(db!, 'businesses', b.id))} className="text-red-600 font-black uppercase text-[9px] hover:underline">Remove</button>
                 </div>
               ))}
             </div>
           )}
 
-          {/* Verification Claims */}
           {activeView === 'claims' && (
             <div className="p-6 space-y-4">
               {verifyRequests?.map(r => (
@@ -215,7 +185,6 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* Maintenance */}
           {activeView === 'clean' && (
             <div className="p-12 space-y-8">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -228,18 +197,15 @@ export default function AdminPage() {
               </div>
             </div>
           )}
-
         </div>
       </div>
 
-      {/* Claim Review Dialog */}
       <Dialog open={!!selectedClaim} onOpenChange={(o) => !o && setSelectedClaim(null)}>
-        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border border-[#E5E5E1] rounded-2xl" aria-describedby="claim-review-description">
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border border-[#E5E5E1] rounded-2xl">
           <DialogHeader className="sr-only">
             <DialogTitle>Claim Review</DialogTitle>
-            <DialogDescription id="claim-review-description">Reviewing verification documents.</DialogDescription>
+            <DialogDescription>Reviewing verification documents.</DialogDescription>
           </DialogHeader>
-
           {selectedClaim && (
             <>
               <div className="p-8 space-y-8 bg-white max-h-[70vh] overflow-y-auto">
@@ -262,7 +228,6 @@ export default function AdminPage() {
                   </div>
                 </div>
               </div>
-
               <div className="p-6 bg-muted/5 border-t flex gap-4">
                 {selectedClaim.status !== 'approved' && (
                   <Button onClick={handleApproveClaim} disabled={isProcessing} className="flex-1 bg-green-600 text-white font-black uppercase text-[10px] h-14 rounded-xl shadow-lg">Approve</Button>

@@ -24,9 +24,6 @@ function ProfileContent() {
   const [activeTab, setActiveTab] = useState<'reviews' | 'management' | 'settings'>((searchParams.get('tab') as any) || 'reviews');
   const [isUpdating, setIsUpdating] = useState(false);
 
-  useEffect(() => {
-    if (!isUserLoading && !user) router.push('/login');
-  }, [user, isUserLoading, router]);
 
   const userDocRef = useMemoFirebase(() => user ? doc(db!, 'users', user.uid) : null, [db, user]);
   const { data: profile, isLoading: isProfileLoading } = useDoc<UserProfile>(userDocRef);
@@ -57,7 +54,7 @@ function ProfileContent() {
     updateDocumentNonBlocking(doc(db, 'users', user.uid), { ...editForm, updatedAt: new Date().toISOString() });
     setTimeout(() => {
       setIsUpdating(false);
-      alert("Info Modified");
+      alert("Info Saved");
     }, 1000);
   };
 
@@ -93,9 +90,9 @@ function ProfileContent() {
       <div className="container mx-auto px-4 mt-12 max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-12">
         <aside className="lg:col-span-3 space-y-3">
           <button onClick={() => setActiveTab('reviews')} className={cn("w-full text-left h-12 px-6 font-bold text-[11px] uppercase tracking-widest rounded-xl border", activeTab === 'reviews' ? "bg-secondary text-white" : "border-[#E5E5E1]")}>My Reviews</button>
-          <button onClick={() => setActiveTab('management')} className={cn("w-full text-left h-12 px-6 font-bold text-[11px] uppercase tracking-widest rounded-xl border", activeTab === 'management' ? "bg-secondary text-white" : "border-[#E5E5E1]")}>My Businesses</button>
+          <button onClick={() => setActiveTab('management')} className={cn("w-full text-left h-12 px-6 font-bold text-[11px] uppercase tracking-widest rounded-xl border", activeTab === 'management' ? "bg-secondary text-white" : "border-[#E5E5E1]")}>Business Dashboard</button>
           <div className="pt-8 border-t border-[#E5E5E1] mt-8">
-            <button onClick={() => setActiveTab('settings')} className={cn("text-[11px] font-bold uppercase tracking-widest w-full text-left px-6 py-3 rounded-xl", activeTab === 'settings' ? "text-primary bg-primary/5" : "text-muted-foreground")}>Modify Info</button>
+            <button onClick={() => setActiveTab('settings')} className={cn("text-[11px] font-bold uppercase tracking-widest w-full text-left px-6 py-3 rounded-xl", activeTab === 'settings' ? "text-primary bg-primary/5" : "text-muted-foreground")}>Edit My Info</button>
           </div>
         </aside>
 
@@ -118,7 +115,7 @@ function ProfileContent() {
           {activeTab === 'management' && (
             <div className="space-y-8">
               <div className="flex justify-between items-center border-b border-[#E5E5E1] pb-4">
-                <h2 className="text-xl font-black uppercase">My Businesses</h2>
+                <h2 className="text-xl font-black uppercase">My Business List</h2>
                 <Button asChild className="bg-secondary text-white font-bold text-[10px] h-10 px-6 rounded-xl"><Link href="/add-business">Add Business</Link></Button>
               </div>
               <div className="grid gap-4">
@@ -134,19 +131,19 @@ function ProfileContent() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" className="h-10 px-4 text-[10px] font-bold uppercase border-[#E5E5E1]" asChild><Link href={`/manage-business/${ent.id}`}>Modify Info</Link></Button>
+                      <Button variant="outline" className="h-10 px-4 text-[10px] font-bold uppercase border-[#E5E5E1]" asChild><Link href={`/manage-business/${ent.id}`}>Manage</Link></Button>
                       <Button variant="ghost" className="h-10 w-10 border border-[#E5E5E1] rounded-xl" asChild><Link href={`/business/${ent.id}`}><ChevronRight className="w-5 h-5" /></Link></Button>
                     </div>
                   </div>
                 ))}
-                {!myBusinesses?.length && <p className="py-20 text-center opacity-30 font-bold uppercase text-xs">No businesses added yet.</p>}
+                {!myBusinesses?.length && <p className="py-20 text-center opacity-30 font-bold uppercase text-xs">No businesses listed yet.</p>}
               </div>
             </div>
           )}
 
           {activeTab === 'settings' && (
             <div className="space-y-10 max-w-xl">
-              <h2 className="text-xl font-black uppercase border-b border-[#E5E5E1] pb-4">Modify Info</h2>
+              <h2 className="text-xl font-black uppercase border-b border-[#E5E5E1] pb-4">Edit My Info</h2>
               <div className="space-y-6">
                 <div className="flex items-center gap-8">
                   <div className="w-24 h-24 rounded-2xl bg-muted overflow-hidden flex items-center justify-center">
@@ -158,7 +155,7 @@ function ProfileContent() {
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase opacity-50">My Name</label>
+                  <label className="text-[10px] font-black uppercase opacity-50">Full Name</label>
                   <Input value={editForm.fullName} onChange={e => setEditForm({...editForm, fullName: e.target.value})} className="h-12 border-[#E5E5E1] rounded-xl font-bold" />
                 </div>
                 <div className="space-y-1">

@@ -1,0 +1,23 @@
+
+{
+  "name": "Cameroon Zoom",
+  "short_name": "Zoom CM",
+  "description": "Professional business directory for Cameroon. Find and contact verified enterprises.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#D71616",
+  "icons": [
+    {
+      "src": "https://picsum.photos/seed/zoom-icon/192/192",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://picsum.photos/seed/zoom-icon/512/512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
