@@ -99,7 +99,7 @@ export function Navbar() {
         </Link>
 
         {/* Search */}
-        <div className="flex-grow max-w-md hidden md:block">
+        <div className="grow max-w-md hidden md:block">
           {!isHomePage && !isSearchPage && (
             <form
               onSubmit={onHeaderSearch}
@@ -161,7 +161,7 @@ export function Navbar() {
 
               <SheetContent
                 side="right"
-                className="w-[300px] p-0 flex flex-col"
+                className="w-75 p-0 flex flex-col"
               >
                 <SheetHeader className="p-8 border-b">
                   <SheetTitle className="text-lg font-black uppercase">
@@ -173,7 +173,7 @@ export function Navbar() {
                   </p>
                 </SheetHeader>
 
-                <div className="flex-grow p-4 space-y-1">
+                <div className="grow p-4 space-y-1">
 
                   <Link
                     href="/profile"
@@ -223,13 +223,13 @@ export function Navbar() {
               </SheetContent>
             </Sheet>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center text-sm">
               <Button asChild variant="ghost">
                 <Link href="/login">Login</Link>
               </Button>
 
               <Button asChild>
-                <Link href="/signup">Create Account</Link>
+                <Link href="/signup" className="">Join Us</Link>
               </Button>
             </div>
           )}

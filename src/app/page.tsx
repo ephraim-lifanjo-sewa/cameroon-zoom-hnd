@@ -98,7 +98,7 @@ export default function Home() {
                   ? "opacity-100 scale-105"
                   : "opacity-0 scale-100"
               )}
-              style={{ transitionDuration: "2000ms" }}
+              style={{ transitionDuration: "3000ms" }}
             >
               <img
                 src={imgUrl}
