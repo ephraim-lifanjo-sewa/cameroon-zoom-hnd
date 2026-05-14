@@ -10,13 +10,13 @@ const TOWNS = [
   { 
     id: 'ngaoundere', 
     name: 'Ngaoundéré', 
-    image: PlaceHolderImages.find(img => img.id === 'town-ngr')?.imageUrl || '/public/images/ngaoundere.jpg',
+    image: PlaceHolderImages.find(img => img.id === 'town-ngr')?.imageUrl || '/images/ngaoundere.jpg',
     color: 'bg-green-400'
   },
   { 
     id: 'douala', 
     name: 'Douala', 
-    image: PlaceHolderImages.find(img => img.id === 'town-dla')?.imageUrl || '/public/images/Douala-City-searchcameroon-270x400.jpg',
+    image: PlaceHolderImages.find(img => img.id === 'town-dla')?.imageUrl || '/images/Douala-City-searchcameroon-270x400.jpg',
     color: 'bg-yellow-400'
   },
 ];

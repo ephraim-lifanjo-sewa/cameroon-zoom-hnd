@@ -14,7 +14,7 @@ const RefineLocationPrecisionInputSchema = z.object({
   addressDescription: z
     .string()
     .describe(
-      'A detailed textual description of the business address, including nearby landmarks and neighborhood information.'
+      'A detailed textual description of the business address, including nearby landmarks and neighborhood information with precision.'
     ),
   latitude: z.number().describe('The latitude of the business location.'),
   longitude: z.number().describe('The longitude of the business location.'),
